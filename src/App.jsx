@@ -13,6 +13,9 @@ import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 import ChangePassword from './pages/ChangePassword';
 
+import AddComic from './pages/AddComic';
+import AddAnime from './pages/AddAnime';
+
 function App() {
   return (
     <BrowserRouter>
@@ -32,6 +35,8 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/edit" element={<EditProfile />} />
             <Route path="/profile/password" element={<ChangePassword />} />
+            <Route path="/comics/add" element={<AddComic />} />
+            <Route path="/animes/add" element={<AddAnime />} />
           </Route>
         </Route>
 
