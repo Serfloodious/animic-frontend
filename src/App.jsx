@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// นำเข้า Components และ Pages ที่เราเพิ่งสร้าง
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import Layout from './components/Layout';
@@ -9,6 +8,10 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+
+import Profile from './pages/Profile';
+import EditProfile from './pages/EditProfile';
+import ChangePassword from './pages/ChangePassword';
 
 function App() {
   return (
@@ -26,7 +29,9 @@ function App() {
           {/* เอา Layout มาครอบเฉพาะหน้าหลังบ้าน */}
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            {/* อนาคตเราจะเพิ่ม Route Comics, Animes, Profile ตรงนี้ */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/profile/password" element={<ChangePassword />} />
           </Route>
         </Route>
 
