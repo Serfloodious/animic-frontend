@@ -9,6 +9,7 @@ export default function AddAnime() {
   const [formData, setFormData] = useState({
     title: '',
     status: 'Watching',
+    isWatched: false,
     episode: 0,
     platform: '',
     rating: 0,
@@ -32,6 +33,16 @@ export default function AddAnime() {
     setFormData({ ...formData, releaseDays: updatedDays });
   };
 
+  // 2. ฟังก์ชันคำนวณสี
+  const getColor = (status, isWatched) => {
+    if (status === 'Watching') return isWatched ? '#22c55e' : '#ef4444'; // เขียว / แดง
+    if (status === 'Stalled') return '#eab308'; // เหลือง
+    if (status === 'Want to Watch') return '#3b82f6'; // ฟ้า
+    if (status === 'Dropped') return '#6b7280'; // เทา
+    if (status === 'Completed') return '#a855f7'; // ม่วง
+    return '#ef4444';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -45,7 +56,11 @@ export default function AddAnime() {
       }
 
       // นำข้อมูลที่รวมแล้วไปแทนที่ก่อนส่ง API
-      const dataToSend = { ...formData, releaseDays: finalReleaseDays };
+      const dataToSend = { 
+        ...formData, 
+        releaseDays: finalReleaseDays,
+        color: getColor(formData.status, formData.isWatched)
+      };
 
       await API.post('/animes', formData);
       navigate('/animes');
@@ -89,6 +104,19 @@ export default function AddAnime() {
             <input type="text" name="platform" value={formData.platform} onChange={handleChange}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
           </div>
+        </div>
+
+        <div className="flex items-center mt-2">
+          <input
+            type="checkbox"
+            id="isWatched"
+            checked={formData.isWatched}
+            onChange={(e) => setFormData({ ...formData, isWatched: e.target.checked })}
+            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+          />
+          <label htmlFor="isWatched" className="ml-2 text-sm font-medium text-gray-700">
+            ดูทันตอนล่าสุดแล้ว (Green Mode)
+          </label>
         </div>
 
         {/* Release Days */}
@@ -144,7 +172,7 @@ export default function AddAnime() {
 
           {/* คะแนน (0-10) */}
           <div>
-            <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (0-10)</label>
+            <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (Rating) (0-10)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-purple-500 overflow-hidden bg-white">
               <input type="number" name="rating" value={formData.rating} onChange={handleChange} min="0" max="10" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />

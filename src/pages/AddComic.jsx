@@ -9,12 +9,13 @@ export default function AddComic() {
   const [formData, setFormData] = useState({
     title: '',
     status: 'Reading',
+    isRead: false,
     chapter: 0,
     volume: 0,
     platform: '',
     rating: 0,
     note: '',
-    releaseDays: [], // Array สำหรับเก็บวันที่ติ๊กเลือก
+    releaseDays: [], // Array สำหรับเก็บวันที่เลือก
     resumeDate: ''   // เก็บค่าวันที่ในรูปแบบ YYYY-MM-DD
   });
   const [customDates, setCustomDates] = useState('');
@@ -34,28 +35,42 @@ export default function AddComic() {
     setFormData({ ...formData, releaseDays: updatedDays });
   };
 
+  // 2. ฟังก์ชันคำนวณสี
+  const getColor = (status, isRead) => {
+    if (status === 'Reading') return isRead ? '#22c55e' : '#ef4444'; // เขียว / แดง
+    if (status === 'Stalled') return '#eab308'; // เหลือง
+    if (status === 'Want to Read') return '#3b82f6'; // ฟ้า
+    if (status === 'Dropped') return '#6b7280'; // เทา
+    if (status === 'Completed') return '#a855f7'; // ม่วง
+    return '#ef4444';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-let finalReleaseDays = [...formData.releaseDays];
+      let finalReleaseDays = [...formData.releaseDays];
       if (customDates.trim() !== '') {
         const parsedDates = customDates.split(',').map(d => d.trim()).filter(d => d);
         finalReleaseDays = [...finalReleaseDays, ...parsedDates];
       }
 
       // นำข้อมูลที่รวมแล้วไปแทนที่ก่อนส่ง API
-      const dataToSend = { ...formData, releaseDays: finalReleaseDays };
+      const dataToSend = { 
+        ...formData, 
+        releaseDays: finalReleaseDays,
+        color: getColor(formData.status, formData.isRead)
+      };
 
       // ส่งข้อมูลไปเซฟ (Backend จะแปลง string วันที่เป็น Date object ให้อัตโนมัติ)
       await API.post('/comics', formData);
       navigate('/comics');
     } catch (err) {
-      setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการเพิ่มคอมมิก');
+        setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการเพิ่มคอมมิก');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -93,6 +108,19 @@ let finalReleaseDays = [...formData.releaseDays];
             <input type="text" name="platform" value={formData.platform} onChange={handleChange}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
+        </div>
+
+        <div className="flex items-center mt-2">
+          <input
+            type="checkbox"
+            id="isRead"
+            checked={formData.isRead}
+            onChange={(e) => setFormData({ ...formData, isRead: e.target.checked })}
+            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <label htmlFor="isRead" className="ml-2 text-sm font-medium text-gray-700">
+            อ่านทันตอนล่าสุดแล้ว (Green Mode)
+          </label>
         </div>
 
         {/* ส่วนใหม่: Release Days */}
@@ -161,9 +189,9 @@ let finalReleaseDays = [...formData.releaseDays];
             </div>
           </div>
 
-          {/* คะแนน (0-10) */}
+          {/* คะแนน (Rating) */}
           <div>
-            <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (0-10)</label>
+            <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (Rating) (0-10)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-white">
               <input type="number" name="rating" value={formData.rating} onChange={handleChange} min="0" max="10" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
