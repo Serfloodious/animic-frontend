@@ -19,6 +19,9 @@ import AddAnime from './pages/AddAnime';
 import Comics from './pages/Comics';
 import Animes from './pages/Animes';
 
+import ComicDetail from './pages/ComicDetail';
+import AnimeDetail from './pages/AnimeDetail';
+
 function App() {
   return (
     <BrowserRouter>
@@ -42,6 +45,8 @@ function App() {
             <Route path="/animes/add" element={<AddAnime />} />
             <Route path="/comics" element={<Comics />} />
             <Route path="/animes" element={<Animes />} />
+            <Route path="/comics/:id" element={<ComicDetail />} />
+            <Route path="/animes/:id" element={<AnimeDetail />} />
           </Route>
         </Route>
 
