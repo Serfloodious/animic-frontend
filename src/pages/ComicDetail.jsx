@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
 const ComicDetail = () => {
@@ -15,7 +17,7 @@ const ComicDetail = () => {
         const res = await API.get(`/comics/${id}`);
         setComic(res.data.data);
       } catch (err) {
-        alert('ไม่พบข้อมูลคอมมิกเรื่องนี้');
+        toast.error('ไม่พบข้อมูลคอมมิกเรื่องนี้');
         navigate('/comics');
       } finally {
         setLoading(false);
@@ -27,13 +29,14 @@ const ComicDetail = () => {
   const handleDelete = async () => {
     try {
       await API.delete(`/comics/${id}`);
+      toast.success('ลบข้อมูลเรียบร้อยแล้ว');
       navigate('/comics');
     } catch (err) {
-      alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+      toast.error('เกิดข้อผิดพลาดในการลบข้อมูล');
     }
   };
 
-  if (loading) return <div className="text-center mt-20">กำลังโหลดข้อมูล...</div>;
+  if (loading) return <Spinner/>;
   if (!comic) return null;
 
   return (
@@ -62,7 +65,7 @@ const ComicDetail = () => {
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase">สถานะการอ่าน</label>
                 <div className="text-lg font-semibold" style={{ color: comic.color }}>
-                  {comic.status} {comic.isRead && ' (อ่านทันตอนล่าสุดแล้ว)'}
+                  {comic.status} {comic.isRead && ' (อ่านถึงตอนล่าสุดแล้ว)'}
                 </div>
               </div>
 

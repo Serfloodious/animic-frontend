@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
@@ -25,9 +26,16 @@ import AnimeDetail from './pages/AnimeDetail';
 import EditComic from './pages/EditComic';
 import EditAnime from './pages/EditAnime';
 
+import NotFound from './pages/NotFound';
+
 function App() {
   return (
     <BrowserRouter>
+      <Toaster 
+        position="top-center" 
+        reverseOrder={false} 
+      />
+
       <Routes>
         {/* หน้าเว็บสาธารณะ (คนล็อกอินแล้วไม่ควรเห็นหน้านี้) */}
         <Route element={<PublicRoute />}>
@@ -56,7 +64,7 @@ function App() {
         </Route>
 
         {/* กรณีพิมพ์ URL มั่ว (404 Not Found) */}
-        <Route path="*" element={<h1 className="p-10 text-2xl text-red-500 text-center">404 - ไม่พบหน้านี้</h1>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

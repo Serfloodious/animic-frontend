@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Spinner from '../components/Spinner';
 import API from '../api/axios'; 
 
 const Animes = () => {
@@ -93,7 +94,7 @@ const Animes = () => {
     setPage(1);
   };
 
-  if (loading && animes.length === 0) return <div className="text-center mt-10 text-gray-600">กำลังโหลดข้อมูลอนิเมะ...</div>;
+  if (loading && animes.length === 0) return <Spinner text="กำลังโหลดข้อมูลอนิเมะ..." />;
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -208,7 +209,7 @@ const Animes = () => {
                   <div className="mt-auto flex justify-between items-end">
                     <div>
                         <div className="text-xs font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded">EP: {anime.episode}</div>
-                        {anime.rating > 0 && <div className="text-amber-500 text-xs font-bold mt-1">⭐ {anime.rating}</div>}
+                        {anime.rating > 0 && <div className="text-amber-500 text-xs font-bold mt-1">⭐ {anime.rating} / 10</div>}
                     </div>
                     <div className="text-right">
                         <div className="text-[10px] text-gray-400 uppercase font-bold">{anime.releaseDays?.join(', ')}</div>

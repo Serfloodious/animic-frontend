@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 import API from '../api/axios';
 
 export default function EditProfile() {
@@ -34,7 +35,7 @@ export default function EditProfile() {
       // อัปเดต Context ใหม่ให้หน้าเว็บจำข้อมูลล่าสุด
       await checkUser(); 
       
-      alert('อัปเดตข้อมูลสำเร็จ!');
+      toast.success('อัปเดตข้อมูลสำเร็จ!');
       navigate('/profile'); // กลับหน้า Profile
     } catch (err) {
       setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล');

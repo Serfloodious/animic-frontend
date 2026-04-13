@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import API from '../api/axios';
 
 export default function ChangePassword() {
@@ -25,7 +26,7 @@ export default function ChangePassword() {
       // ยิง API เปลี่ยนรหัสผ่าน
       await API.put('/auth/updatepassword', formData);
       
-      alert('เปลี่ยนรหัสผ่านสำเร็จ!');
+      toast.success('เปลี่ยนรหัสผ่านสำเร็จ!');
       navigate('/profile');
     } catch (err) {
       setError(err.response?.data?.message || 'รหัสผ่านปัจจุบันไม่ถูกต้อง หรือเกิดข้อผิดพลาด');

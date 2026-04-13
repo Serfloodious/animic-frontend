@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
 const animeDetail = () => {
@@ -15,7 +17,7 @@ const animeDetail = () => {
         const res = await API.get(`/animes/${id}`);
         setanime(res.data.data);
       } catch (err) {
-        alert('ไม่พบข้อมูลอนิเมะเรื่องนี้');
+        toast.error('ไม่พบข้อมูลอนิเมะเรื่องนี้');
         navigate('/animes');
       } finally {
         setLoading(false);
@@ -27,13 +29,14 @@ const animeDetail = () => {
   const handleDelete = async () => {
     try {
       await API.delete(`/animes/${id}`);
+      toast.success('ลบข้อมูลเรียบร้อยแล้ว');
       navigate('/animes');
     } catch (err) {
-      alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+      toast.error('เกิดข้อผิดพลาดในการลบข้อมูล');
     }
   };
 
-  if (loading) return <div className="text-center mt-20">กำลังโหลดข้อมูล...</div>;
+  if (loading) return <Spinner/>
   if (!anime) return null;
 
   return (
@@ -62,7 +65,7 @@ const animeDetail = () => {
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase">สถานะการดู</label>
                 <div className="text-lg font-semibold" style={{ color: anime.color }}>
-                  {anime.status} {anime.isWatched && ' (ดูทันตอนล่าสุดแล้ว)'}
+                  {anime.status} {anime.isWatched && ' (ดูถึงตอนล่าสุดแล้ว)'}
                 </div>
               </div>
 

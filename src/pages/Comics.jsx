@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Spinner from '../components/Spinner';
 import API from '../api/axios'; 
 
 const Comics = () => {
@@ -105,7 +106,7 @@ const Comics = () => {
     setPage(1); 
   };
 
-  if (loading && comics.length === 0) return <div className="text-center mt-10">กำลังโหลดข้อมูล...</div>;
+  if (loading && comics.length === 0) return <Spinner/>;
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -247,7 +248,7 @@ const Comics = () => {
                         )}
                       </div>
                       <span className="font-bold text-xs" style={{ color: comic.color || '#ef4444' }}>
-                        {comic.isRead && comic.status === 'Reading' ? 'อ่านทันแล้ว' : comic.status}
+                        {comic.isRead && comic.status === 'Reading' ? 'อ่านถึงตอนล่าสุดแล้ว' : comic.status}
                       </span>
                     </div>
                   </div>

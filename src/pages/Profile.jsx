@@ -15,7 +15,7 @@ export default function Profile() {
         logout(); // เคลียร์ข้อมูลล็อกอิน
         navigate('/'); // กลับหน้าแรก
       } catch (error) {
-        alert(error.response?.data?.message || 'เกิดข้อผิดพลาดในการลบบัญชี');
+        toast.error(error.response?.data?.message || 'เกิดข้อผิดพลาดในการลบบัญชี');
       }
     }
   };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
 export default function Dashboard() {
@@ -46,7 +47,7 @@ export default function Dashboard() {
 
       {/* ส่วนแสดงการ์ดสถิติ */}
       {loading ? (
-        <div className="text-center py-10 text-gray-500 animate-pulse">กำลังโหลดข้อมูลสถิติ...</div>
+        <Spinner text="กำลังโหลดข้อมูลสถิติ..." />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* การ์ด Animes */}

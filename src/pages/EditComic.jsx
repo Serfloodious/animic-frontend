@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import API from '../api/axios';
 
 const EditComic = () => {
@@ -48,7 +49,7 @@ const EditComic = () => {
         if (otherDay) setCustomDay(otherDay);
         
       } catch (err) {
-        alert('ไม่สามารถดึงข้อมูลได้');
+        toast.error('ไม่สามารถดึงข้อมูลได้');
         navigate('/comics');
       }
     };
@@ -69,9 +70,10 @@ const EditComic = () => {
       if (customDay) finalDays.push(customDay);
 
       await API.put(`/comics/${id}`, { ...formData, releaseDays: finalDays });
+      toast.success('บันทึกการแก้ไขสำเร็จ!');
       navigate(`/comics/${id}`); // แก้ไขเสร็จกลับไปหน้า Detail
     } catch (err) {
-      alert('แก้ไขข้อมูลไม่สำเร็จ');
+      toast.error('แก้ไขข้อมูลไม่สำเร็จ กรุณาลองใหม่');
     }
   };
 
