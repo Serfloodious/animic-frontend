@@ -62,7 +62,7 @@ export default function AddAnime() {
         color: getColor(formData.status, formData.isWatched)
       };
 
-      await API.post('/animes', formData);
+      await API.post('/animes', dataToSend);
       navigate('/animes');
     } catch (err) {
       setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการเพิ่มอนิเมะ');
@@ -170,7 +170,7 @@ export default function AddAnime() {
             </div>
           </div>
 
-          {/* คะแนน (0-10) */}
+          {/* คะแนน (Rating) (0-10) */}
           <div>
             <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (Rating) (0-10)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-purple-500 overflow-hidden bg-white">

@@ -1,0 +1,285 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import API from '../api/axios'; 
+
+const Comics = () => {
+  const [comics, setComics] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // --- States สำหรับ Filters ---
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterDay, setFilterDay] = useState('');
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({});
+
+  // --- States สำหรับ Multi-Sort ---
+  // เริ่มต้นด้วย releaseDays แบบน้อยไปมาก (A-Z)
+  const [sortRules, setSortRules] = useState([{ field: 'dayOrder', direction: 'asc' }]);
+
+  const sortOptions = [
+    { value: 'dayOrder', label: 'วันอัปเดต (จันทร์-อาทิตย์-อื่น ๆ)' },
+    { value: 'title', label: 'ชื่อเรื่อง (Title)' },
+    { value: 'status', label: 'สถานะ (Status)' },
+    { value: 'platform', label: 'แพลตฟอร์ม (Platform)' },
+    { value: 'volume', label: 'เล่มที่ (Volume)' },
+    { value: 'chapter', label: 'ตอนที่ (Chapter)' },
+    { value: 'rating', label: 'คะแนน (Rating)' },
+    { value: 'resumeDate', label: 'วันที่กลับมาอ่าน (Resume Date)' },
+    { value: 'createdAt', label: 'วันที่เพิ่ม (Created Date)' }
+  ];
+
+  const dayOptions = [
+    { value: 'Monday', label: 'วันจันทร์' },
+    { value: 'Tuesday', label: 'วันอังคาร' },
+    { value: 'Wednesday', label: 'วันพุธ' },
+    { value: 'Thursday', label: 'วันพฤหัสบดี' },
+    { value: 'Friday', label: 'วันศุกร์' },
+    { value: 'Saturday', label: 'วันเสาร์' },
+    { value: 'Sunday', label: 'วันอาทิตย์' },
+    { value: 'Others', label: 'อื่น ๆ' }
+  ];
+
+  // Fetch เมื่อ States เปลี่ยนแปลง
+  useEffect(() => {
+    fetchComics();
+    // eslint-disable-next-line
+  }, [filterStatus, filterDay, sortRules, page]);
+
+  const fetchComics = async () => {
+    try {
+      setLoading(true);
+      
+      // แปลง Array sortRules ให้เป็น String เช่น "releaseDays,-rating"
+      const sortString = sortRules
+        .map(rule => (rule.direction === 'desc' ? `-${rule.field}` : rule.field))
+        .join(',');
+
+      const params = new URLSearchParams({
+        page: page,
+        limit: 12,
+        sort: sortString
+      });
+
+      if (filterStatus) params.append('status', filterStatus);
+      if (filterDay) params.append('releaseDays', filterDay); // Backend จะค้นหาคำตรงตัว
+
+      const res = await API.get(`/comics?${params.toString()}`);
+      
+      setComics(res.data.data);
+      setPagination(res.data.pagination || {});
+      setError('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'ไม่สามารถดึงข้อมูลการ์ตูนได้');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- Functions จัดการ Sort ---
+  const handleAddSort = () => {
+    setSortRules([...sortRules, { field: 'createdAt', direction: 'desc' }]);
+  };
+
+  const handleUpdateSort = (index, key, value) => {
+    const newRules = [...sortRules];
+    newRules[index][key] = value;
+    setSortRules(newRules);
+    setPage(1);
+  };
+
+  const handleRemoveSort = (index) => {
+    const newRules = sortRules.filter((_, i) => i !== index);
+    // บังคับให้ต้องมีอย่างน้อย 1 การจัดเรียง
+    if (newRules.length === 0) {
+      setSortRules([{ field: 'createdAt', direction: 'desc' }]);
+    } else {
+      setSortRules(newRules);
+    }
+    setPage(1);
+  };
+
+  const handleFilterChange = (e, type) => {
+    if (type === 'status') setFilterStatus(e.target.value);
+    if (type === 'day') setFilterDay(e.target.value);
+    setPage(1); 
+  };
+
+  if (loading && comics.length === 0) return <div className="text-center mt-10">กำลังโหลดข้อมูล...</div>;
+
+  return (
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <h1 className="text-2xl font-bold text-gray-800">คลังคอมมิก (Comics)</h1>
+        <Link 
+          to="/comics/add" 
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm shrink-0"
+        >
+          + เพิ่มการ์ตูน
+        </Link>
+      </div>
+
+      {/* --- ส่วนเครื่องมือกรอง (Filters) --- */}
+      <div className="bg-white p-5 rounded-lg shadow-sm mb-6 border border-gray-100">
+        <h3 className="text-sm font-bold text-gray-700 mb-3 border-b pb-2">ตัวกรอง (Filters)</h3>
+        <div className="flex flex-wrap gap-4">
+          <div>
+            <label className="text-sm font-semibold text-gray-600 mr-2">สถานะ:</label>
+            <select 
+              value={filterStatus} 
+              onChange={(e) => handleFilterChange(e, 'status')}
+              className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+              <option value="">ทั้งหมด (All)</option>
+              <option value="Reading">กำลังอ่าน</option>
+              <option value="Completed">จบบริบูรณ์</option>
+              <option value="Stalled">ดอง</option>
+              <option value="Want to Read">อยากอ่าน</option>
+              <option value="Dropped">เท</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold text-gray-600 mr-2">วันอัปเดต:</label>
+            <select 
+              value={filterDay} 
+              onChange={(e) => handleFilterChange(e, 'day')}
+              className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+              <option value="">ทุกวัน (All)</option>
+              {dayOptions.map(day => (
+                <option key={day.value} value={day.value}>{day.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* --- ส่วนการจัดเรียงหลายชั้น (Multi-Sort) --- */}
+        <h3 className="text-sm font-bold text-gray-700 mt-6 mb-3 border-b pb-2">
+          การจัดเรียง (เรียงลำดับความสำคัญจากบนลงล่าง)
+        </h3>
+        <div className="flex flex-col gap-3">
+          {sortRules.map((rule, index) => (
+            <div key={index} className="flex flex-wrap gap-2 items-center bg-gray-50 p-2 rounded border border-gray-200">
+              <span className="text-xs font-bold text-gray-500 w-6 text-center">{index + 1}.</span>
+              <select 
+                value={rule.field}
+                onChange={(e) => handleUpdateSort(index, 'field', e.target.value)}
+                className="border rounded px-2 py-1 text-sm outline-none focus:border-blue-500"
+              >
+                {sortOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+
+              <select 
+                value={rule.direction}
+                onChange={(e) => handleUpdateSort(index, 'direction', e.target.value)}
+                className="border rounded px-2 py-1 text-sm outline-none focus:border-blue-500"
+              >
+                <option value="asc">น้อยไปมาก / เก่าไปใหม่ / A-Z</option>
+                <option value="desc">มากไปน้อย / ใหม่ไปเก่า / Z-A</option>
+              </select>
+
+              {sortRules.length > 1 && (
+                <button 
+                  onClick={() => handleRemoveSort(index)}
+                  className="text-red-500 hover:text-red-700 text-sm font-bold px-2"
+                  title="ลบเงื่อนไขนี้"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          
+          <button 
+            onClick={handleAddSort}
+            className="text-sm text-blue-600 font-medium hover:text-blue-800 self-start mt-1 flex items-center"
+          >
+            + เพิ่มเงื่อนไขการเรียง
+          </button>
+        </div>
+      </div>
+
+      {/* Error Message */}
+      {error && <div className="text-center mb-6 text-red-500 bg-red-50 p-3 rounded">{error}</div>}
+
+      {/* Grid สำหรับแสดงการ์ด (โครงสร้างเดิม) */}
+      {comics.length === 0 && !loading ? (
+        <div className="text-center py-10 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
+          ไม่พบข้อมูลคอมมิกตามเงื่อนไขที่เลือก
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {comics.map((comic) => (
+              <Link to={`/comics/${comic._id}`} key={comic._id} className="block group">
+                <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden relative border border-gray-100 h-full flex flex-col">
+                  <div className="h-2 w-full" style={{ backgroundColor: comic.color || '#ef4444' }}></div>
+                  
+                  <div className="p-4 flex flex-col flex-grow">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-bold text-lg text-gray-800 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {comic.title}
+                      </h3>
+                      {comic.status === 'Completed' && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-bold ml-2 shrink-0">
+                          จบแล้ว
+                        </span>
+                      )}
+                    </div>
+                    
+                    <p className="text-sm text-gray-500 mb-4 flex-grow">
+                      {comic.platform || 'ไม่ระบุแพลตฟอร์ม'} 
+                      {comic.releaseDays?.length > 0 && ` • [${comic.releaseDays.join(', ')}]`}
+                    </p>
+                    
+                    <div className="flex justify-between items-end text-sm mt-auto">
+                      <div className="flex flex-col gap-1">
+                        <span className="bg-gray-100 px-2 py-1 rounded text-gray-700 font-medium">
+                          Vol. {comic.volume} | Ch. {comic.chapter}
+                        </span>
+                        {comic.rating > 0 && (
+                          <span className="text-amber-500 font-bold text-xs mt-1">
+                            ⭐ {comic.rating} / 10
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-bold text-xs" style={{ color: comic.color || '#ef4444' }}>
+                        {comic.isRead && comic.status === 'Reading' ? 'อ่านทันแล้ว' : comic.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {(pagination.next || pagination.prev) && (
+            <div className="flex justify-center items-center mt-10 gap-4">
+              <button 
+                onClick={() => setPage(page - 1)}
+                disabled={!pagination.prev}
+                className={`px-4 py-2 rounded font-medium ${pagination.prev ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              >
+                &laquo; ก่อนหน้า
+              </button>
+              <span className="text-gray-600 font-medium">หน้าที่ {page}</span>
+              <button 
+                onClick={() => setPage(page + 1)}
+                disabled={!pagination.next}
+                className={`px-4 py-2 rounded font-medium ${pagination.next ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              >
+                ถัดไป &raquo;
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default Comics;

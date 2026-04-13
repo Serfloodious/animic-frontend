@@ -65,7 +65,7 @@ export default function AddComic() {
       };
 
       // ส่งข้อมูลไปเซฟ (Backend จะแปลง string วันที่เป็น Date object ให้อัตโนมัติ)
-      await API.post('/comics', formData);
+      await API.post('/comics', dataToSend);
       navigate('/comics');
     } catch (err) {
         setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการเพิ่มคอมมิก');
