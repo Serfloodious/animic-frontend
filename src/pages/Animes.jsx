@@ -200,7 +200,7 @@ const Animes = () => {
           {animes.map((anime) => (
             <Link to={`/animes/${anime._id}`} key={anime._id} className="group transition-transform hover:-translate-y-1">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col">
-                <div className="h-2 w-full" style={{ backgroundColor: anime.color || '#6366f1' }}></div>
+                <div className="h-2 w-full" style={{ backgroundColor: anime.color || '#ef4444' }}></div>
                 <div className="p-5 flex flex-col flex-grow">
                   <h3 className="font-bold text-gray-800 mb-1 group-hover:text-indigo-600 line-clamp-2">{anime.title}</h3>
                   <p className="text-xs text-gray-400 mb-4">{anime.platform || 'ไม่ระบุแหล่งที่ดู'}</p>
@@ -212,7 +212,7 @@ const Animes = () => {
                     </div>
                     <div className="text-right">
                         <div className="text-[10px] text-gray-400 uppercase font-bold">{anime.releaseDays?.join(', ')}</div>
-                        <div className="text-xs font-bold" style={{ color: anime.color || '#6366f1' }}>
+                        <div className="text-xs font-bold" style={{ color: anime.color || '#ef4444' }}>
                             {anime.isWatched && anime.status === 'Watching' ? 'ดูถึงตอนล่าสุดแล้ว' : anime.status}
                         </div>
                     </div>

@@ -22,6 +22,9 @@ import Animes from './pages/Animes';
 import ComicDetail from './pages/ComicDetail';
 import AnimeDetail from './pages/AnimeDetail';
 
+import EditComic from './pages/EditComic';
+import EditAnime from './pages/EditAnime';
+
 function App() {
   return (
     <BrowserRouter>
@@ -47,6 +50,8 @@ function App() {
             <Route path="/animes" element={<Animes />} />
             <Route path="/comics/:id" element={<ComicDetail />} />
             <Route path="/animes/:id" element={<AnimeDetail />} />
+            <Route path="/comics/:id/edit" element={<EditComic />} />
+            <Route path="/animes/:id/edit" element={<EditAnime />} />
           </Route>
         </Route>
 

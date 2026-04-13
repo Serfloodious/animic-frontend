@@ -70,7 +70,7 @@ const Comics = () => {
       setPagination(res.data.pagination || {});
       setError('');
     } catch (err) {
-      setError(err.response?.data?.message || 'ไม่สามารถดึงข้อมูลการ์ตูนได้');
+      setError(err.response?.data?.message || 'ไม่สามารถดึงข้อมูลคอมมิกได้');
     } finally {
       setLoading(false);
     }
@@ -115,7 +115,7 @@ const Comics = () => {
           to="/comics/add" 
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm shrink-0"
         >
-          + เพิ่มการ์ตูน
+          + เพิ่มคอมมิก
         </Link>
       </div>
 

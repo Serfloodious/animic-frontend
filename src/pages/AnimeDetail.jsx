@@ -40,7 +40,7 @@ const animeDetail = () => {
     <div className="max-w-4xl mx-auto p-4 sm:p-8">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {/* แถบสีแสดงสถานะ */}
-        <div className="h-3 w-full" style={{ backgroundColor: anime.color || '#6366f1' }}></div>
+        <div className="h-3 w-full" style={{ backgroundColor: anime.color || '#ef4444' }}></div>
         
         <div className="p-6 sm:p-8">
           {/* ส่วนหัว */}
@@ -123,7 +123,7 @@ const animeDetail = () => {
           {/* ปุ่มจัดการข้อมูล */}
           <div className="mt-10 flex flex-wrap gap-4 justify-end border-t pt-6">
             <Link 
-              to={`/animes/edit/${anime._id}`}
+              to={`/animes/${anime._id}/edit`}
               className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition"
             >
               แก้ไขข้อมูล

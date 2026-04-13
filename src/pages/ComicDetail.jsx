@@ -127,7 +127,7 @@ const ComicDetail = () => {
           {/* ปุ่มจัดการข้อมูล */}
           <div className="mt-10 flex flex-wrap gap-4 justify-end border-t pt-6">
             <Link 
-              to={`/comics/edit/${comic._id}`}
+              to={`/comics/${comic._id}/edit`}
               className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition"
             >
               แก้ไขข้อมูล

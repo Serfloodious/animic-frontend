@@ -36,12 +36,13 @@ export default function AddComic() {
   };
 
   // 2. ฟังก์ชันคำนวณสี
-  const getColor = (status, isRead) => {
-    if (status === 'Reading') return isRead ? '#22c55e' : '#ef4444'; // เขียว / แดง
-    if (status === 'Stalled') return '#eab308'; // เหลือง
-    if (status === 'Want to Read') return '#3b82f6'; // ฟ้า
-    if (status === 'Dropped') return '#6b7280'; // เทา
-    if (status === 'Completed') return '#a855f7'; // ม่วง
+  const getColor = (status, isUpToDate) => {
+    // รองรับทั้ง Reading (Comic) และ Watching (Anime)
+    if (status === 'Reading' || status === 'Watching') return isUpToDate ? '#22c55e' : '#ef4444'; 
+    if (status === 'Stalled') return '#eab308'; 
+    if (status === 'Want to Read' || status === 'Want to Watch') return '#3b82f6'; 
+    if (status === 'Dropped') return '#6b7280'; 
+    if (status === 'Completed') return '#a855f7'; 
     return '#ef4444';
   };
 
