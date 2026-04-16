@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Spinner from '../components/Spinner';
+import StatusBadge from '../components/StatusBadge';
 import API from '../api/axios'; 
+
+import { 
+  formatDate, 
+  getDayColor, 
+  dayOptions
+} from '../utils/helpers';
 
 const Animes = () => {
   const [animes, setAnimes] = useState([]);
@@ -19,26 +26,44 @@ const Animes = () => {
   const [sortRules, setSortRules] = useState([{ field: 'dayOrder', direction: 'asc' }]);
 
   const sortOptions = [
-    { value: 'dayOrder', label: 'วันอัปเดต (จันทร์-อาทิตย์-อื่น ๆ)' },
+    { value: 'dayOrder', label: 'วันที่ตอนใหม่มา (Release Days)' },
     { value: 'title', label: 'ชื่อเรื่อง (Title)' },
     { value: 'status', label: 'สถานะ (Status)' },
     { value: 'platform', label: 'แพลตฟอร์ม (Platform)' },
     { value: 'episode', label: 'ตอนที่ (Episode)' },
     { value: 'rating', label: 'คะแนน (Rating)' },
-    { value: 'resumeDate', label: 'วันที่กลับมาดู (Resume Date)' },
+    { value: 'resumeDate', label: 'วันที่คาดว่าจะกลับมาดู (Resume Date)' },
     { value: 'createdAt', label: 'วันที่เพิ่ม (Created Date)' }
   ];
 
-  const dayOptions = [
-    { value: 'Monday', label: 'วันจันทร์' },
-    { value: 'Tuesday', label: 'วันอังคาร' },
-    { value: 'Wednesday', label: 'วันพุธ' },
-    { value: 'Thursday', label: 'วันพฤหัสบดี' },
-    { value: 'Friday', label: 'วันศุกร์' },
-    { value: 'Saturday', label: 'วันเสาร์' },
-    { value: 'Sunday', label: 'วันอาทิตย์' },
-    { value: 'Others', label: 'อื่น ๆ' }
-  ];
+  // --- Functions จัดการ Sort ---
+  const handleAddSort = () => {
+    setSortRules([...sortRules, { field: 'createdAt', direction: 'desc' }]);
+  };
+
+  const handleUpdateSort = (index, key, value) => {
+    const newRules = [...sortRules];
+    newRules[index][key] = value;
+    setSortRules(newRules);
+    setPage(1);
+  };
+
+  const handleRemoveSort = (index) => {
+    const newRules = sortRules.filter((_, i) => i !== index);
+    // บังคับให้ต้องมีอย่างน้อย 1 การจัดเรียง
+    if (newRules.length === 0) {
+        setSortRules([{ field: 'createdAt', direction: 'desc' }]);
+    } else {
+        setSortRules(newRules);
+    }
+    setPage(1);
+  };
+
+  const handleFilterChange = (e, type) => {
+    if (type === 'status') setFilterStatus(e.target.value);
+    if (type === 'day') setFilterDay(e.target.value);
+    setPage(1); 
+  };
 
   useEffect(() => {
     fetchAnimes();
@@ -73,28 +98,7 @@ const Animes = () => {
     }
   };
 
-  const handleAddSort = () => {
-    setSortRules([...sortRules, { field: 'createdAt', direction: 'desc' }]);
-  };
-
-  const handleUpdateSort = (index, key, value) => {
-    const newRules = [...sortRules];
-    newRules[index][key] = value;
-    setSortRules(newRules);
-    setPage(1);
-  };
-
-  const handleRemoveSort = (index) => {
-    const newRules = sortRules.filter((_, i) => i !== index);
-    if (newRules.length === 0) {
-      setSortRules([{ field: 'dayOrder', direction: 'asc' }]);
-    } else {
-      setSortRules(newRules);
-    }
-    setPage(1);
-  };
-
-  if (loading && animes.length === 0) return <Spinner text="กำลังโหลดข้อมูลอนิเมะ..." />;
+  if (loading && animes.length === 0) return <Spinner/>;
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -116,23 +120,23 @@ const Animes = () => {
             <label className="text-sm font-semibold text-gray-600 mr-2">สถานะ:</label>
             <select 
               value={filterStatus} 
-              onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
+              onChange={(e) => handleFilterChange(e, 'status')}
               className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="">ทั้งหมด (All)</option>
-              <option value="Watching">กำลังดู</option>
-              <option value="Completed">ดูจบแล้ว</option>
-              <option value="Stalled">ดอง</option>
-              <option value="Want to Watch">อยากดู</option>
-              <option value="Dropped">เท</option>
+              <option value="Watching">กำลังดู (Watching)</option>
+              <option value="Completed">จบบริบูรณ์ (Completed)</option>
+              <option value="Stalled">ดองไว้ (Stalled)</option>
+              <option value="Want to Watch">อยากดู (Want to Watch)</option>
+              <option value="Dropped">เทแล้ว (Dropped)</option>
             </select>
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-gray-600 mr-2">วันอัปเดต:</label>
+            <label className="text-sm font-semibold text-gray-600 mr-2">วันที่ตอนใหม่มา:</label>
             <select 
               value={filterDay} 
-              onChange={(e) => { setFilterDay(e.target.value); setPage(1); }}
+              onChange={(e) => handleFilterChange(e, 'day')}
               className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="">ทุกวัน (All)</option>
@@ -145,7 +149,7 @@ const Animes = () => {
 
         {/* --- ส่วนการจัดเรียงหลายชั้น (Multi-Sort) --- */}
         <h3 className="text-sm font-bold text-gray-700 mt-6 mb-3 border-b pb-2">
-          การจัดเรียง (เรียงลำดับความสำคัญจากบนลงล่าง)
+          การจัดเรียง (Sorting) (เรียงลำดับความสำคัญจากบนลงล่าง)
         </h3>
         <div className="flex flex-col gap-3">
           {sortRules.map((rule, index) => (
@@ -166,8 +170,8 @@ const Animes = () => {
                 onChange={(e) => handleUpdateSort(index, 'direction', e.target.value)}
                 className="border rounded px-2 py-1 text-sm outline-none focus:border-indigo-500"
               >
-                <option value="asc">น้อยไปมาก / เก่าไปใหม่ / A-Z</option>
-                <option value="desc">มากไปน้อย / ใหม่ไปเก่า / Z-A</option>
+                <option value="asc">น้อยไปมาก / เก่าไปใหม่ / A-Z / จันทร์-อาทิตย์-อื่น ๆ</option>
+                <option value="desc">มากไปน้อย / ใหม่ไปเก่า / Z-A / อื่น ๆ-อาทิตย์-จันทร์</option>
               </select>
 
               {sortRules.length > 1 && (
@@ -197,35 +201,84 @@ const Animes = () => {
           ไม่พบข้อมูลอนิเมะตามเงื่อนไขที่เลือก
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {animes.map((anime) => (
-            <Link to={`/animes/${anime._id}`} key={anime._id} className="group transition-transform hover:-translate-y-1">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col">
-                <div className="h-2 w-full" style={{ backgroundColor: anime.color || '#ef4444' }}></div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="font-bold text-gray-800 mb-1 group-hover:text-indigo-600 line-clamp-2">{anime.title}</h3>
-                  <p className="text-xs text-gray-400 mb-4">{anime.platform || 'ไม่ระบุแหล่งที่ดู'}</p>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {animes.map((anime) => (
+              <Link to={`/animes/${anime._id}`} key={anime._id} className="block group">
+                <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden relative border border-gray-100 h-full flex flex-col">
+                  <div className="h-2 w-full" style={{ backgroundColor: anime.color || '#ef4444' }}></div>
                   
-                  <div className="mt-auto flex justify-between items-end">
-                    <div>
-                        <div className="text-xs font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded">EP: {anime.episode}</div>
-                        {anime.rating > 0 && <div className="text-amber-500 text-xs font-bold mt-1">⭐ {anime.rating} / 10</div>}
+                  <div className="p-4 flex flex-col flex-grow">
+                    <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
+                      <h3 className="font-bold text-lg text-gray-800 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {anime.title}
+                      </h3>
+                      <StatusBadge status={anime.status} isUpToDate={anime.isWatched} />
                     </div>
-                    <div className="text-right">
-                        <div className="text-[10px] text-gray-400 uppercase font-bold">{anime.releaseDays?.join(', ')}</div>
-                        <div className="text-xs font-bold" style={{ color: anime.color || '#ef4444' }}>
-                            {anime.isWatched && anime.status === 'Watching' ? 'ดูถึงตอนล่าสุดแล้ว' : anime.status}
+                    
+                    <div className="text-xs text-gray-500 font-bold mb-4 flex-grow flex flex-wrap items-center gap-2">
+                      <span>{anime.platform || 'ไม่ระบุแพลตฟอร์ม'}</span>
+                      
+                      {anime.releaseDays?.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {anime.releaseDays.map((day, i) => (
+                            <span 
+                              key={i} 
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium shadow-sm ${getDayColor(day)}`}
+                            >
+                              {day}
+                            </span>
+                          ))}
                         </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-between items-end text-sm mt-auto">
+                      <div className="flex flex-col gap-1">
+                        <span className="bg-gray-100 px-2 py-1 rounded text-gray-700 font-medium">
+                          EP: {anime.episode}
+                        </span>
+                        {anime.rating > 0 && (
+                          <span className="text-amber-500 font-bold text-xs mt-1">
+                            ⭐ {anime.rating} / 10
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-right">
+                        {anime.status === 'Stalled' && (
+                          <span className="text-xs font-bold">{formatDate(anime.resumeDate)}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+              </Link>
+            ))}
+          </div>
 
-      {/* Pagination (ใช้ logic เดียวกับ Comics) */}
+          {/* Pagination */}
+          {(pagination.next || pagination.prev) && (
+            <div className="flex justify-center items-center mt-10 gap-4">
+              <button 
+                onClick={() => setPage(page - 1)}
+                disabled={!pagination.prev}
+                className={`px-4 py-2 rounded font-medium ${pagination.prev ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              >
+                &laquo; ก่อนหน้า
+              </button>
+              <span className="text-gray-600 font-medium">หน้าที่ {page}</span>
+              <button 
+                onClick={() => setPage(page + 1)}
+                disabled={!pagination.next}
+                className={`px-4 py-2 rounded font-medium ${pagination.next ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              >
+                ถัดไป &raquo;
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

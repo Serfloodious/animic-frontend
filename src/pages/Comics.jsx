@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Spinner from '../components/Spinner';
+import StatusBadge from '../components/StatusBadge';
 import API from '../api/axios'; 
+
+import { 
+  formatDate, 
+  getDayColor, 
+  dayOptions
+} from '../utils/helpers';
 
 const Comics = () => {
   const [comics, setComics] = useState([]);
@@ -15,31 +22,49 @@ const Comics = () => {
   const [pagination, setPagination] = useState({});
 
   // --- States สำหรับ Multi-Sort ---
-  // เริ่มต้นด้วย releaseDays แบบน้อยไปมาก (A-Z)
+  // เริ่มต้นด้วย dayOrder (การเรียงวัน จันทร์-อาทิตย์-อื่น ๆ)
   const [sortRules, setSortRules] = useState([{ field: 'dayOrder', direction: 'asc' }]);
 
   const sortOptions = [
-    { value: 'dayOrder', label: 'วันอัปเดต (จันทร์-อาทิตย์-อื่น ๆ)' },
+    { value: 'dayOrder', label: 'วันที่ตอนใหม่มา (Release Days)' },
     { value: 'title', label: 'ชื่อเรื่อง (Title)' },
     { value: 'status', label: 'สถานะ (Status)' },
     { value: 'platform', label: 'แพลตฟอร์ม (Platform)' },
-    { value: 'volume', label: 'เล่มที่ (Volume)' },
+    { value: 'volume', label: 'เล่มที่/ซีซันที่ (Volume/Season)' },
     { value: 'chapter', label: 'ตอนที่ (Chapter)' },
     { value: 'rating', label: 'คะแนน (Rating)' },
-    { value: 'resumeDate', label: 'วันที่กลับมาอ่าน (Resume Date)' },
+    { value: 'resumeDate', label: 'วันที่คาดว่าจะกลับมาอ่าน (Resume Date)' },
     { value: 'createdAt', label: 'วันที่เพิ่ม (Created Date)' }
   ];
 
-  const dayOptions = [
-    { value: 'Monday', label: 'วันจันทร์' },
-    { value: 'Tuesday', label: 'วันอังคาร' },
-    { value: 'Wednesday', label: 'วันพุธ' },
-    { value: 'Thursday', label: 'วันพฤหัสบดี' },
-    { value: 'Friday', label: 'วันศุกร์' },
-    { value: 'Saturday', label: 'วันเสาร์' },
-    { value: 'Sunday', label: 'วันอาทิตย์' },
-    { value: 'Others', label: 'อื่น ๆ' }
-  ];
+  // --- Functions จัดการ Sort ---
+  const handleAddSort = () => {
+    setSortRules([...sortRules, { field: 'createdAt', direction: 'desc' }]);
+  };
+
+  const handleUpdateSort = (index, key, value) => {
+    const newRules = [...sortRules];
+    newRules[index][key] = value;
+    setSortRules(newRules);
+    setPage(1);
+  };
+
+  const handleRemoveSort = (index) => {
+    const newRules = sortRules.filter((_, i) => i !== index);
+    // บังคับให้ต้องมีอย่างน้อย 1 การจัดเรียง
+    if (newRules.length === 0) {
+        setSortRules([{ field: 'createdAt', direction: 'desc' }]);
+    } else {
+        setSortRules(newRules);
+    }
+    setPage(1);
+  };
+
+  const handleFilterChange = (e, type) => {
+    if (type === 'status') setFilterStatus(e.target.value);
+    if (type === 'day') setFilterDay(e.target.value);
+    setPage(1); 
+  };
 
   // Fetch เมื่อ States เปลี่ยนแปลง
   useEffect(() => {
@@ -77,35 +102,6 @@ const Comics = () => {
     }
   };
 
-  // --- Functions จัดการ Sort ---
-  const handleAddSort = () => {
-    setSortRules([...sortRules, { field: 'createdAt', direction: 'desc' }]);
-  };
-
-  const handleUpdateSort = (index, key, value) => {
-    const newRules = [...sortRules];
-    newRules[index][key] = value;
-    setSortRules(newRules);
-    setPage(1);
-  };
-
-  const handleRemoveSort = (index) => {
-    const newRules = sortRules.filter((_, i) => i !== index);
-    // บังคับให้ต้องมีอย่างน้อย 1 การจัดเรียง
-    if (newRules.length === 0) {
-      setSortRules([{ field: 'createdAt', direction: 'desc' }]);
-    } else {
-      setSortRules(newRules);
-    }
-    setPage(1);
-  };
-
-  const handleFilterChange = (e, type) => {
-    if (type === 'status') setFilterStatus(e.target.value);
-    if (type === 'day') setFilterDay(e.target.value);
-    setPage(1); 
-  };
-
   if (loading && comics.length === 0) return <Spinner/>;
 
   return (
@@ -132,16 +128,16 @@ const Comics = () => {
               className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             >
               <option value="">ทั้งหมด (All)</option>
-              <option value="Reading">กำลังอ่าน</option>
-              <option value="Completed">จบบริบูรณ์</option>
-              <option value="Stalled">ดอง</option>
-              <option value="Want to Read">อยากอ่าน</option>
-              <option value="Dropped">เท</option>
+              <option value="Reading">กำลังอ่าน (Reading)</option>
+              <option value="Completed">จบบริบูรณ์ (Completed)</option>
+              <option value="Stalled">ดองไว้ (Stalled)</option>
+              <option value="Want to Read">อยากอ่าน (Want to Read)</option>
+              <option value="Dropped">เทแล้ว (Dropped)</option>
             </select>
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-gray-600 mr-2">วันอัปเดต:</label>
+            <label className="text-sm font-semibold text-gray-600 mr-2">วันที่ตอนใหม่มา:</label>
             <select 
               value={filterDay} 
               onChange={(e) => handleFilterChange(e, 'day')}
@@ -157,7 +153,7 @@ const Comics = () => {
 
         {/* --- ส่วนการจัดเรียงหลายชั้น (Multi-Sort) --- */}
         <h3 className="text-sm font-bold text-gray-700 mt-6 mb-3 border-b pb-2">
-          การจัดเรียง (เรียงลำดับความสำคัญจากบนลงล่าง)
+          การจัดเรียง (Sorting) (เรียงลำดับความสำคัญจากบนลงล่าง)
         </h3>
         <div className="flex flex-col gap-3">
           {sortRules.map((rule, index) => (
@@ -178,8 +174,8 @@ const Comics = () => {
                 onChange={(e) => handleUpdateSort(index, 'direction', e.target.value)}
                 className="border rounded px-2 py-1 text-sm outline-none focus:border-blue-500"
               >
-                <option value="asc">น้อยไปมาก / เก่าไปใหม่ / A-Z</option>
-                <option value="desc">มากไปน้อย / ใหม่ไปเก่า / Z-A</option>
+                <option value="asc">น้อยไปมาก / เก่าไปใหม่ / A-Z / จันทร์-อาทิตย์-อื่น ๆ</option>
+                <option value="desc">มากไปน้อย / ใหม่ไปเก่า / Z-A / อื่น ๆ-อาทิตย์-จันทร์</option>
               </select>
 
               {sortRules.length > 1 && (
@@ -220,26 +216,34 @@ const Comics = () => {
                   <div className="h-2 w-full" style={{ backgroundColor: comic.color || '#ef4444' }}></div>
                   
                   <div className="p-4 flex flex-col flex-grow">
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
                       <h3 className="font-bold text-lg text-gray-800 line-clamp-2 group-hover:text-blue-600 transition-colors">
                         {comic.title}
                       </h3>
-                      {comic.status === 'Completed' && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-bold ml-2 shrink-0">
-                          จบแล้ว
-                        </span>
-                      )}
+                      <StatusBadge status={comic.status} isUpToDate={comic.isRead} />
                     </div>
                     
-                    <p className="text-sm text-gray-500 mb-4 flex-grow">
-                      {comic.platform || 'ไม่ระบุแพลตฟอร์ม'} 
-                      {comic.releaseDays?.length > 0 && ` • [${comic.releaseDays.join(', ')}]`}
-                    </p>
+                    <div className="text-xs text-gray-500 font-bold mb-4 flex-grow flex flex-wrap items-center gap-2">
+                      <span>{comic.platform || 'ไม่ระบุแพลตฟอร์ม'}</span>
+                      
+                      {comic.releaseDays?.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {comic.releaseDays.map((day, i) => (
+                            <span 
+                              key={i} 
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium shadow-sm ${getDayColor(day)}`}
+                            >
+                              {day}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     
                     <div className="flex justify-between items-end text-sm mt-auto">
                       <div className="flex flex-col gap-1">
                         <span className="bg-gray-100 px-2 py-1 rounded text-gray-700 font-medium">
-                          Vol. {comic.volume} | Ch. {comic.chapter}
+                          Vol./SS {comic.volume} | Ch. {comic.chapter}
                         </span>
                         {comic.rating > 0 && (
                           <span className="text-amber-500 font-bold text-xs mt-1">
@@ -247,9 +251,12 @@ const Comics = () => {
                           </span>
                         )}
                       </div>
-                      <span className="font-bold text-xs" style={{ color: comic.color || '#ef4444' }}>
-                        {comic.isRead && comic.status === 'Reading' ? 'อ่านถึงตอนล่าสุดแล้ว' : comic.status}
-                      </span>
+
+                      <div className="text-right">
+                        {comic.status === 'Stalled' && (
+                          <span className="text-xs font-bold">{formatDate(comic.resumeDate)}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
