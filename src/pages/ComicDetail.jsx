@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
+import { formatDate, getDayColor } from '../utils/helpers';
+
 const ComicDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -63,7 +65,7 @@ const ComicDetail = () => {
             {/* ฝั่งซ้าย: ข้อมูลหลัก */}
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase">สถานะการอ่าน</label>
+                <label className="text-xs font-bold text-gray-400 uppercase">สถานะ</label>
                 <div className="text-lg font-semibold" style={{ color: comic.color }}>
                   {comic.status} {comic.isRead && ' (อ่านถึงตอนล่าสุดแล้ว)'}
                 </div>
@@ -71,7 +73,7 @@ const ComicDetail = () => {
 
               <div className="flex gap-10">
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">เล่มที่</label>
+                  <label className="text-xs font-bold text-gray-400 uppercase">เล่มที่/ซีซันที่</label>
                   <div className="text-xl font-medium">{comic.volume}</div>
                 </div>
                 <div>
@@ -93,7 +95,7 @@ const ComicDetail = () => {
                 <div className="flex flex-wrap gap-2 mt-1">
                   {comic.releaseDays?.length > 0 ? (
                     comic.releaseDays.map((day, i) => (
-                      <span key={i} className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600 font-medium">
+                      <span key={i} className={`px-3 py-1 rounded-full text-sm font-medium shadow-sm ${getDayColor(day)}`}>
                         {day}
                       </span>
                     ))
@@ -102,17 +104,17 @@ const ComicDetail = () => {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase">คะแนนความชอบ</label>
+                <label className="text-xs font-bold text-gray-400 uppercase">คะแนน</label>
                 <div className="text-xl text-amber-500 font-bold">
                   {comic.rating > 0 ? `⭐ ${comic.rating} / 10` : 'ยังไม่มีคะแนน'}
                 </div>
               </div>
 
-              {comic.status === 'Stalled' && comic.resumeDate && (
+              {comic.status === 'Stalled' && (
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">วันที่ตั้งใจจะกลับมาอ่าน</label>
-                  <div className="text-blue-600 font-medium">
-                    {new Date(comic.resumeDate).toLocaleDateString('th-TH')}
+                  <label className="text-xs font-bold text-gray-400 uppercase">วันที่คาดว่าจะกลับมาอ่าน</label>
+                  <div className="font-medium" style={{ color: comic.color }}>
+                    {formatDate(comic.resumeDate)}
                   </div>
                 </div>
               )}

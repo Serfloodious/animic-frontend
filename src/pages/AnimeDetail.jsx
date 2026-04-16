@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
+import { formatDate, getDayColor } from '../utils/helpers';
+
 const animeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -63,7 +65,7 @@ const animeDetail = () => {
             {/* ฝั่งซ้าย: ข้อมูลหลัก */}
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase">สถานะการดู</label>
+                <label className="text-xs font-bold text-gray-400 uppercase">สถานะ</label>
                 <div className="text-lg font-semibold" style={{ color: anime.color }}>
                   {anime.status} {anime.isWatched && ' (ดูถึงตอนล่าสุดแล้ว)'}
                 </div>
@@ -85,11 +87,11 @@ const animeDetail = () => {
             {/* ฝั่งขวา: วันที่และคะแนน */}
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase">วันที่ฉาย</label>
+                <label className="text-xs font-bold text-gray-400 uppercase">วันที่ตอนใหม่มา</label>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {anime.releaseDays?.length > 0 ? (
                     anime.releaseDays.map((day, i) => (
-                      <span key={i} className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600 font-medium">
+                      <span key={i} className={`px-3 py-1 rounded-full text-sm font-medium shadow-sm ${getDayColor(day)}`}>
                         {day}
                       </span>
                     ))
@@ -98,17 +100,17 @@ const animeDetail = () => {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-400 uppercase">คะแนนความชอบ</label>
+                <label className="text-xs font-bold text-gray-400 uppercase">คะแนน</label>
                 <div className="text-xl text-amber-500 font-bold">
                   {anime.rating > 0 ? `⭐ ${anime.rating} / 10` : 'ยังไม่มีคะแนน'}
                 </div>
               </div>
 
-              {anime.status === 'Stalled' && anime.resumeDate && (
+              {anime.status === 'Stalled' && (
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">วันที่ตั้งใจจะกลับมาดู</label>
-                  <div className="text-blue-600 font-medium">
-                    {new Date(anime.resumeDate).toLocaleDateString('th-TH')}
+                  <label className="text-xs font-bold text-gray-400 uppercase">วันที่คาดว่าจะกลับมาดู</label>
+                  <div className="font-medium" style={{ color: anime.color }}>
+                    {formatDate(anime.resumeDate)}
                   </div>
                 </div>
               )}
