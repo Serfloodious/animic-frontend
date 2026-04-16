@@ -4,9 +4,29 @@ import { useAuth } from '../contexts/AuthContext';
 import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
+// คอมโพเนนต์ย่อยสำหรับการ์ดสถานะ (เพื่อความสะอาดของโค้ด)
+const StatusCard = ({ label, count, colorClass, icon, unit = "เรื่อง" }) => (
+  <div className={`bg-white border-l-4 ${colorClass} rounded-xl p-4 shadow-sm flex justify-between items-center hover:shadow-md transition-shadow`}>
+    <div>
+      <p className="text-gray-500 text-xs font-bold uppercase tracking-wider">{label}</p>
+      <h3 className="text-2xl font-bold text-gray-800 mt-1">
+        {count} <span className="text-sm font-normal text-gray-400">{unit}</span>
+      </h3>
+    </div>
+    <div className={`p-3 rounded-full bg-gray-50 text-xl`}>
+      {icon}
+    </div>
+  </div>
+);
+
 export default function Dashboard() {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ comics: 0, animes: 0 });
+  const [stats, setStats] = useState({
+    comics: 0,
+    animes: 0,
+    comicStats: {},
+    animeStats: {}
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,10 +39,20 @@ export default function Dashboard() {
           API.get('/animes')
         ]);
 
+        // ฟังก์ชันช่วยนับจำนวนตามสถานะ
+        const countStatus = (items) => {
+          return items.reduce((acc, item) => {
+            acc[item.status] = (acc[item.status] || 0) + 1;
+            return acc;
+          }, {});
+        };
+
         // นำข้อมูลจำนวนที่ได้มาอัปเดตใส่ State
         setStats({
           comics: comicRes.data.count || 0,
-          animes: animeRes.data.count || 0
+          animes: animeRes.data.count || 0,
+          comicStats: countStatus(comicRes.data.data || []),
+          animeStats: countStatus(animeRes.data.data || [])
         });
       } catch (error) {
         console.error('ไม่สามารถดึงข้อมูลสถิติได้:', error);
@@ -34,58 +64,74 @@ export default function Dashboard() {
     fetchStats();
   }, []);
 
+  if (loading) return <Spinner />;
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-8 pb-10">
       {/* ส่วนหัวต้อนรับ */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            ภาพรวมลิสต์อนิเมะและคอมมิกของคุณ
-          </h1>
+          <h1 className="text-3xl font-extrabold text-gray-900">สวัสดี, {user?.username}!</h1>
+          <p className="text-gray-500 mt-1">นี่คือสรุปรายการอนิเมะและคอมมิกของคุณทั้งหมด</p>
         </div>
       </div>
 
-      {/* ส่วนแสดงการ์ดสถิติ */}
-      {loading ? (
-        <Spinner text="กำลังโหลดข้อมูลสถิติ..." />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* การ์ด Animes */}
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white shadow-md flex justify-between items-center">
+      {/* แถวบน: การ์ดรวมทั้งหมด */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Link to="/animes" className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:scale-[1.02] transition-transform">
+          <div className="flex justify-between items-center">
             <div>
-              <p className="text-purple-100 text-sm font-semibold uppercase tracking-wider">อนิเมะในลิสต์</p>
-              <h2 className="text-4xl font-bold mt-2">{stats.animes} <span className="text-lg font-normal">เรื่อง</span></h2>
+              <p className="text-indigo-100 text-sm font-semibold uppercase tracking-wider">อนิเมะทั้งหมด</p>
+              <h2 className="text-5xl font-bold mt-2">{stats.animes}</h2>
             </div>
-            <div className="bg-white/20 p-4 rounded-full">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-            </div>
+            <div className="bg-white/20 p-4 rounded-2xl text-4xl">📺</div>
           </div>
+        </Link>
 
-          {/* การ์ด Comics */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-md flex justify-between items-center">
+        <Link to="/comics" className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-6 text-white shadow-lg hover:scale-[1.02] transition-transform">
+          <div className="flex justify-between items-center">
             <div>
-              <p className="text-blue-100 text-sm font-semibold uppercase tracking-wider">คอมมิกในลิสต์</p>
-              <h2 className="text-4xl font-bold mt-2">{stats.comics} <span className="text-lg font-normal">เรื่อง</span></h2>
+              <p className="text-blue-100 text-sm font-semibold uppercase tracking-wider">คอมมิกทั้งหมด</p>
+              <h2 className="text-5xl font-bold mt-2">{stats.comics}</h2>
             </div>
-            <div className="bg-white/20 p-4 rounded-full">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
+            <div className="bg-white/20 p-4 rounded-2xl text-4xl">📖</div>
+          </div>
+        </Link>
+      </div>
+
+      {/* แถวล่าง: แบ่งซ้าย (Anime) ขวา (Comic) แยกตามสถานะ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        
+        {/* ฝั่งซ้าย: Anime Status */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-gray-700 flex items-center gap-2 border-b pb-2">
+            <span className="w-2 h-6 bg-indigo-500 rounded-full"></span>
+            สถานะการดูอนิเมะ
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <StatusCard label="กำลังดู" count={stats.animeStats['Watching'] || 0} colorClass="border-green-500" icon="📺" />
+            <StatusCard label="ดองไว้" count={stats.animeStats['Stalled'] || 0} colorClass="border-yellow-500" icon="⏳" />
+            <StatusCard label="อยากดู" count={stats.animeStats['Want to Watch'] || 0} colorClass="border-blue-500" icon="💖" />
+            <StatusCard label="จบบริบูรณ์" count={stats.animeStats['Completed'] || 0} colorClass="border-purple-500" icon="✅" />
+            <StatusCard label="เทแล้ว" count={stats.animeStats['Dropped'] || 0} colorClass="border-gray-400" icon="🗑️" />
           </div>
         </div>
-      )}
 
-      {/* ปุ่มทางลัด */}
-      <div className="flex gap-4 mt-8">
-        <Link to="/animes" className="px-6 py-3 bg-white text-purple-600 font-semibold rounded shadow-sm border border-purple-200 hover:bg-purple-50 transition">
-          จัดการอนิเมะ
-        </Link>
-        <Link to="/comics" className="px-6 py-3 bg-white text-blue-600 font-semibold rounded shadow-sm border border-blue-200 hover:bg-blue-50 transition">
-          จัดการคอมมิก
-        </Link>
+        {/* ฝั่งขวา: Comic Status */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-gray-700 flex items-center gap-2 border-b pb-2">
+            <span className="w-2 h-6 bg-blue-500 rounded-full"></span>
+            สถานะการอ่านคอมมิก
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <StatusCard label="กำลังอ่าน" count={stats.comicStats['Reading'] || 0} colorClass="border-green-500" icon="📖" />
+            <StatusCard label="ดองไว้" count={stats.comicStats['Stalled'] || 0} colorClass="border-yellow-500" icon="⏳" />
+            <StatusCard label="อยากอ่าน" count={stats.comicStats['Want to Read'] || 0} colorClass="border-blue-500" icon="💖" />
+            <StatusCard label="จบบริบูรณ์" count={stats.comicStats['Completed'] || 0} colorClass="border-purple-500" icon="✅" />
+            <StatusCard label="เทแล้ว" count={stats.comicStats['Dropped'] || 0} colorClass="border-gray-400" icon="🗑️" />
+          </div>
+        </div>
+
       </div>
     </div>
   );
