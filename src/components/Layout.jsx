@@ -19,8 +19,8 @@ export default function Layout() {
         </div>
         <nav className="flex-1 p-4 space-y-2">
           <Link to="/dashboard" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Dashboard</Link>
-          <Link to="/comics" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Comics</Link>
           <Link to="/animes" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Animes</Link>
+          <Link to="/comics" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Comics</Link>
           <Link to="/profile" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Profile</Link>
         </nav>
       </aside>
