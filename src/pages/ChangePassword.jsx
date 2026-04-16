@@ -10,7 +10,11 @@ export default function ChangePassword() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ 
+      ...formData, 
+      [name]: value 
+    });
   };
 
   const handleSubmit = async (e) => {

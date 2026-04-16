@@ -15,12 +15,19 @@ export default function EditProfile() {
   // ดึงข้อมูลเดิมมาใส่ในฟอร์มตอนเปิดหน้าเว็บ
   useEffect(() => {
     if (user) {
-      setFormData({ username: user.username, email: user.email });
+      setFormData({ 
+        username: user.username, 
+        email: user.email 
+      });
     }
   }, [user]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ 
+      ...formData, 
+      [name]: value 
+    });
   };
 
   const handleSubmit = async (e) => {
