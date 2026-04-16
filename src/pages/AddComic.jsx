@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 
+import { getStatusColor } from '../utils/helpers';
+
 export default function AddComic() {
   const navigate = useNavigate();
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -16,7 +18,8 @@ export default function AddComic() {
     rating: 0,
     note: '',
     releaseDays: [], // Array สำหรับเก็บวันที่เลือก
-    resumeDate: ''   // เก็บค่าวันที่ในรูปแบบ YYYY-MM-DD
+    resumeDate: '',   // เก็บค่าวันที่ในรูปแบบ YYYY-MM-DD
+    color: '#ef4444'
   });
   const [customDates, setCustomDates] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,7 +27,10 @@ export default function AddComic() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ 
+      ...formData, 
+      [name]: value 
+    });
   };
 
   // ฟังก์ชันจัดการการติ๊กเลือกวัน (releaseDays)
@@ -32,18 +38,20 @@ export default function AddComic() {
     const updatedDays = formData.releaseDays.includes(day)
       ? formData.releaseDays.filter(d => d !== day)
       : [...formData.releaseDays, day];
-    setFormData({ ...formData, releaseDays: updatedDays });
+    setFormData({ 
+      ...formData, 
+      releaseDays: updatedDays 
+    });
   };
 
-  // 2. ฟังก์ชันคำนวณสี
-  const getColor = (status, isUpToDate) => {
-    // รองรับทั้ง Reading (Comic) และ Watching (Anime)
-    if (status === 'Reading' || status === 'Watching') return isUpToDate ? '#22c55e' : '#ef4444'; 
-    if (status === 'Stalled') return '#eab308'; 
-    if (status === 'Want to Read' || status === 'Want to Watch') return '#3b82f6'; 
-    if (status === 'Dropped') return '#6b7280'; 
-    if (status === 'Completed') return '#a855f7'; 
-    return '#ef4444';
+  const handleStatusChange = (newStatus) => {
+    const newColor = getStatusColor(newStatus, formData.isRead);
+    setFormData({ 
+      ...formData, 
+      status: newStatus, 
+      color: newColor,
+      resumeDate: newStatus === 'Stalled' ? formData.resumeDate : ''
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -62,7 +70,7 @@ export default function AddComic() {
       const dataToSend = { 
         ...formData, 
         releaseDays: finalReleaseDays,
-        color: getColor(formData.status, formData.isRead)
+        color: getStatusColor(formData.status, formData.isRead)
       };
 
       // ส่งข้อมูลไปเซฟ (Backend จะแปลง string วันที่เป็น Date object ให้อัตโนมัติ)
@@ -78,7 +86,7 @@ export default function AddComic() {
   return (
     <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md mt-6 border-t-4 border-blue-500">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-        <span className="w-4 h-4 rounded-full inline-block bg-blue-500"></span>
+        <span className="w-4 h-4 rounded-full inline-block" style={{ backgroundColor: formData.color }}></span>
         เพิ่มคอมมิกเรื่องใหม่
       </h2>
 
@@ -95,8 +103,9 @@ export default function AddComic() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">สถานะ (Status) *</label>
-            <select name="status" value={formData.status} onChange={handleChange}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <select name="status" value={formData.status} onChange={(e) => handleStatusChange(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              style={{ borderLeft: `4px solid ${formData.color}` }}>
               <option value="Reading">กำลังอ่าน (Reading)</option>
               <option value="Completed">อ่านจบแล้ว (Completed)</option>
               <option value="Want to Read">อยากอ่าน (Want to Read)</option>
@@ -112,14 +121,16 @@ export default function AddComic() {
         </div>
 
         <div className="flex items-center mt-2">
-          <input
-            type="checkbox"
-            id="isRead"
-            checked={formData.isRead}
-            onChange={(e) => setFormData({ ...formData, isRead: e.target.checked })}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-          />
-          <label htmlFor="isRead" className="ml-2 text-sm font-medium text-gray-700">
+          <input type="checkbox" id="isRead" checked={formData.isRead} onChange={(e) => {
+              const checked = e.target.checked;
+              setFormData({ 
+                ...formData, 
+                isRead: checked, 
+                color: getStatusColor(formData.status, checked) 
+              });
+            }}
+            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer" />
+          <label htmlFor="isRead" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">
             อ่านทันตอนล่าสุดแล้ว (Green Mode)
           </label>
         </div>
@@ -150,26 +161,38 @@ export default function AddComic() {
           </div>
         </div>
 
-        {/* ส่วนใหม่: Resume Date (แสดงชัดเจนขึ้นเมื่อสถานะเป็น Stalled) */}
-        <div>
-          <label className={`block text-sm font-bold mb-2 ${formData.status === 'Stalled' ? 'text-red-500' : 'text-gray-700'}`}>
-            วันที่คาดว่าจะกลับมาอ่าน (Resume Date)
-          </label>
-          <input type="date" name="resumeDate" value={formData.resumeDate} onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        </div>
+        {formData.status === 'Stalled' && (
+          <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              วันที่คาดว่าจะกลับมาอ่าน (Resume Date)
+            </label>
+            <input 
+              type="date" 
+              name="resumeDate" 
+              value={formData.resumeDate} 
+              onChange={handleChange} 
+              className="w-full px-3 py-2 border rounded" 
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-4">
-          {/* เล่ม (Vol.) */}
+          {/* เล่ม/ซีซัน (Vol./SS) */}
           <div>
-            <label className="block text-gray-700 text-xs font-bold mb-1">เล่ม (Vol.)</label>
+            <label className="block text-gray-700 text-xs font-bold mb-1">เล่ม/ซีซัน (Vol./SS)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-white">
               <input type="number" name="volume" value={formData.volume} onChange={handleChange} min="0" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
-                <button type="button" onClick={() => setFormData({...formData, volume: Math.max(0, Number(formData.volume) - 1)})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  volume: Math.max(0, Number(formData.volume) - 1)
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 border-r border-gray-200 text-gray-700 font-bold transition">-</button>
-                <button type="button" onClick={() => setFormData({...formData, volume: Number(formData.volume) + 1})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  volume: Number(formData.volume) + 1
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 text-gray-700 font-bold transition">+</button>
               </div>
             </div>
@@ -182,24 +205,36 @@ export default function AddComic() {
               <input type="number" name="chapter" value={formData.chapter} onChange={handleChange} min="0" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
-                <button type="button" onClick={() => setFormData({...formData, chapter: Math.max(0, Number(formData.chapter) - 1)})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  chapter: Math.max(0, Number(formData.chapter) - 1)
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 border-r border-gray-200 text-gray-700 font-bold transition">-</button>
-                <button type="button" onClick={() => setFormData({...formData, chapter: Number(formData.chapter) + 1})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  chapter: Number(formData.chapter) + 1
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 text-gray-700 font-bold transition">+</button>
               </div>
             </div>
           </div>
 
-          {/* คะแนน (Rating) */}
+          {/* คะแนน (Rating) (0-10) */}
           <div>
             <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (Rating) (0-10)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-white">
               <input type="number" name="rating" value={formData.rating} onChange={handleChange} min="0" max="10" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
-                <button type="button" onClick={() => setFormData({...formData, rating: Math.max(0, Number(formData.rating) - 1)})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  rating: Math.max(0, Number(formData.rating) - 1)
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 border-r border-gray-200 text-gray-700 font-bold transition">-</button>
-                <button type="button" onClick={() => setFormData({...formData, rating: Math.min(10, Number(formData.rating) + 1)})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  rating: Math.min(10, Number(formData.rating) + 1)
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 text-gray-700 font-bold transition">+</button>
               </div>
             </div>

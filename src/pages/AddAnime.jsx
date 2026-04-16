@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 
+import { getStatusColor } from '../utils/helpers';
+
 export default function AddAnime() {
   const navigate = useNavigate();
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -15,7 +17,8 @@ export default function AddAnime() {
     rating: 0,
     note: '',
     releaseDays: [],
-    resumeDate: ''
+    resumeDate: '',
+    color: '#ef4444'
   });
   const [customDates, setCustomDates] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,25 +26,30 @@ export default function AddAnime() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ 
+      ...formData, 
+      [name]: value 
+    });
   };
 
   const handleDayChange = (day) => {
     const updatedDays = formData.releaseDays.includes(day)
       ? formData.releaseDays.filter(d => d !== day)
       : [...formData.releaseDays, day];
-    setFormData({ ...formData, releaseDays: updatedDays });
+    setFormData({ 
+      ...formData, 
+      releaseDays: updatedDays 
+    });
   };
 
-  // 2. ฟังก์ชันคำนวณสี
-  const getColor = (status, isUpToDate) => {
-    // รองรับทั้ง Reading (Comic) และ Watching (Anime)
-    if (status === 'Reading' || status === 'Watching') return isUpToDate ? '#22c55e' : '#ef4444'; 
-    if (status === 'Stalled') return '#eab308'; 
-    if (status === 'Want to Read' || status === 'Want to Watch') return '#3b82f6'; 
-    if (status === 'Dropped') return '#6b7280'; 
-    if (status === 'Completed') return '#a855f7'; 
-    return '#ef4444';
+  const handleStatusChange = (newStatus) => {
+    const newColor = getStatusColor(newStatus, formData.isWatched);
+    setFormData({ 
+      ...formData, 
+      status: newStatus, 
+      color: newColor,
+      resumeDate: newStatus === 'Stalled' ? formData.resumeDate : ''
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -60,7 +68,7 @@ export default function AddAnime() {
       const dataToSend = { 
         ...formData, 
         releaseDays: finalReleaseDays,
-        color: getColor(formData.status, formData.isWatched)
+        color: getStatusColor(formData.status, formData.isWatched)
       };
 
       await API.post('/animes', dataToSend);
@@ -75,7 +83,7 @@ export default function AddAnime() {
   return (
     <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md mt-6 border-t-4 border-purple-500">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-        <span className="w-4 h-4 rounded-full inline-block bg-purple-500"></span>
+        <span className="w-4 h-4 rounded-full inline-block" style={{ backgroundColor: formData.color }}></span>
         เพิ่มอนิเมะเรื่องใหม่
       </h2>
 
@@ -91,8 +99,9 @@ export default function AddAnime() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">สถานะ (Status) *</label>
-            <select name="status" value={formData.status} onChange={handleChange}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+            <select name="status" value={formData.status} onChange={(e) => handleStatusChange(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+              style={{ borderLeft: `4px solid ${formData.color}` }}>
               <option value="Watching">กำลังดู (Watching)</option>
               <option value="Completed">จบบริบูรณ์ (Completed)</option>
               <option value="Want to Watch">อยากดู (Want to Watch)</option>
@@ -108,21 +117,23 @@ export default function AddAnime() {
         </div>
 
         <div className="flex items-center mt-2">
-          <input
-            type="checkbox"
-            id="isWatched"
-            checked={formData.isWatched}
-            onChange={(e) => setFormData({ ...formData, isWatched: e.target.checked })}
-            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-          />
-          <label htmlFor="isWatched" className="ml-2 text-sm font-medium text-gray-700">
+          <input type="checkbox" id="isWatched" checked={formData.isWatched} onChange={(e) => {
+              const checked = e.target.checked;
+              setFormData({ 
+                ...formData, 
+                isWatched: checked, 
+                color: getStatusColor(formData.status, checked) 
+              });
+            }}
+            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer" />
+          <label htmlFor="isWatched" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">
             ดูทันตอนล่าสุดแล้ว (Green Mode)
           </label>
         </div>
 
         {/* Release Days */}
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ฉาย (Release Days)</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ตอนใหม่มา (Release Days)</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {daysOfWeek.map(day => (
               <button key={day} type="button" onClick={() => handleDayChange(day)}
@@ -147,13 +158,20 @@ export default function AddAnime() {
         </div>
 
         {/* Resume Date */}
-        <div>
-          <label className={`block text-sm font-bold mb-2 ${formData.status === 'Stalled' ? 'text-red-500' : 'text-gray-700'}`}>
-            วันที่คาดว่าจะกลับมาดู (Resume Date)
-          </label>
-          <input type="date" name="resumeDate" value={formData.resumeDate} onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
-        </div>
+        {formData.status === 'Stalled' && (
+          <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              วันที่คาดว่าจะกลับมาดู (Resume Date)
+            </label>
+            <input 
+              type="date" 
+              name="resumeDate" 
+              value={formData.resumeDate} 
+              onChange={handleChange} 
+              className="w-full px-3 py-2 border rounded" 
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           {/* ตอนที่ (Ep.) */}
@@ -163,9 +181,15 @@ export default function AddAnime() {
               <input type="number" name="episode" value={formData.episode} onChange={handleChange} min="0" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
-                <button type="button" onClick={() => setFormData({...formData, episode: Math.max(0, Number(formData.episode) - 1)})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  episode: Math.max(0, Number(formData.episode) - 1)
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 border-r border-gray-200 text-gray-700 font-bold transition">-</button>
-                <button type="button" onClick={() => setFormData({...formData, episode: Number(formData.episode) + 1})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  episode: Number(formData.episode) + 1
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 text-gray-700 font-bold transition">+</button>
               </div>
             </div>
@@ -178,9 +202,15 @@ export default function AddAnime() {
               <input type="number" name="rating" value={formData.rating} onChange={handleChange} min="0" max="10" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
-                <button type="button" onClick={() => setFormData({...formData, rating: Math.max(0, Number(formData.rating) - 1)})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  rating: Math.max(0, Number(formData.rating) - 1)
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 border-r border-gray-200 text-gray-700 font-bold transition">-</button>
-                <button type="button" onClick={() => setFormData({...formData, rating: Math.min(10, Number(formData.rating) + 1)})}
+                <button type="button" onClick={() => setFormData({
+                  ...formData, 
+                  rating: Math.min(10, Number(formData.rating) + 1)
+                })}
                   className="px-3 bg-gray-50 hover:bg-gray-200 text-gray-700 font-bold transition">+</button>
               </div>
             </div>
