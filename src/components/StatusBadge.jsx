@@ -1,7 +1,8 @@
 import React from 'react';
 
 // ฟังก์ชันสำหรับแสดงป้ายสถานะ (รองรับทั้ง Anime และ Comic)
-const StatusBadge = (status, isUpToDate) => {
+const StatusBadge = ({status, isUpToDate}) => {
+  console.log(`StatusBadge ได้รับค่า: [${status}]`);
   switch (status) {
     case 'Watching':
     case 'Reading':
