@@ -22,23 +22,54 @@ export const getDayColor = (day) => {
 };
 
 export const dayOptions = [
-    { value: 'Monday', label: 'วันจันทร์ (Monday)' },
-    { value: 'Tuesday', label: 'วันอังคาร (Tuesday)' },
-    { value: 'Wednesday', label: 'วันพุธ (Wednesday)' },
-    { value: 'Thursday', label: 'วันพฤหัสบดี (Thursday)' },
-    { value: 'Friday', label: 'วันศุกร์ (Friday)' },
-    { value: 'Saturday', label: 'วันเสาร์ (Saturday)' },
-    { value: 'Sunday', label: 'วันอาทิตย์ (Sunday)' },
-    { value: 'Others', label: 'อื่น ๆ (Others)' }
+  { value: 'Monday', label: 'วันจันทร์ (Monday)' },
+  { value: 'Tuesday', label: 'วันอังคาร (Tuesday)' },
+  { value: 'Wednesday', label: 'วันพุธ (Wednesday)' },
+  { value: 'Thursday', label: 'วันพฤหัสบดี (Thursday)' },
+  { value: 'Friday', label: 'วันศุกร์ (Friday)' },
+  { value: 'Saturday', label: 'วันเสาร์ (Saturday)' },
+  { value: 'Sunday', label: 'วันอาทิตย์ (Sunday)' },
+  { value: 'Others', label: 'อื่น ๆ (Others)' }
 ];
 
 // ฟังก์ชันคำนวณสี
 export const getStatusColor = (status, isUpToDate) => {
-    // รองรับทั้ง Reading (Comic) และ Watching (Anime)
-    if (status === 'Reading' || status === 'Watching') return isUpToDate ? '#22c55e' : '#ef4444'; 
-    if (status === 'Stalled') return '#eab308'; 
-    if (status === 'Want to Read' || status === 'Want to Watch') return '#3b82f6'; 
-    if (status === 'Dropped') return '#6b7280'; 
-    if (status === 'Completed') return '#a855f7'; 
-    return '#ef4444';
+  // รองรับทั้ง Reading (Comic) และ Watching (Anime)
+  if (status === 'Reading' || status === 'Watching') return isUpToDate ? '#22c55e' : '#ef4444'; 
+  if (status === 'Stalled') return '#eab308'; 
+  if (status === 'Want to Read' || status === 'Want to Watch') return '#3b82f6'; 
+  if (status === 'Dropped') return '#6b7280'; 
+  if (status === 'Completed') return '#a855f7'; 
+  return '#ef4444';
+};
+
+export const handleAddSort = (sortRules, setSortRules) => {
+  setSortRules([
+    ...sortRules, 
+    { field: 'createdAt', direction: 'desc' }
+  ]);
+};
+
+export const handleUpdateSort = (index, key, value, sortRules, setSortRules, setPage) => {
+  const newRules = [...sortRules];
+  newRules[index][key] = value;
+  setSortRules(newRules);
+  setPage(1);
+};
+
+export const handleRemoveSort = (index, sortRules, setSortRules, setPage) => {
+  const newRules = sortRules.filter((_, i) => i !== index);
+  // บังคับให้ต้องมีอย่างน้อย 1 การจัดเรียง
+  if (newRules.length === 0) {
+      setSortRules([{ field: 'createdAt', direction: 'desc' }]);
+  } else {
+      setSortRules(newRules);
+  }
+  setPage(1);
+};
+
+export const handleFilterChange = (e, type, setFilterStatus, setFilterDay, setPage) => {
+  if (type === 'status') setFilterStatus(e.target.value);
+  if (type === 'day') setFilterDay(e.target.value);
+  setPage(1); 
 };

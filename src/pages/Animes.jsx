@@ -7,7 +7,11 @@ import API from '../api/axios';
 import { 
   formatDate, 
   getDayColor, 
-  dayOptions
+  dayOptions,
+  handleAddSort,
+  handleUpdateSort,
+  handleRemoveSort,
+  handleFilterChange
 } from '../utils/helpers';
 
 const Animes = () => {
@@ -35,35 +39,6 @@ const Animes = () => {
     { value: 'resumeDate', label: 'วันที่คาดว่าจะกลับมาดู (Resume Date)' },
     { value: 'createdAt', label: 'วันที่เพิ่ม (Created Date)' }
   ];
-
-  // --- Functions จัดการ Sort ---
-  const handleAddSort = () => {
-    setSortRules([...sortRules, { field: 'createdAt', direction: 'desc' }]);
-  };
-
-  const handleUpdateSort = (index, key, value) => {
-    const newRules = [...sortRules];
-    newRules[index][key] = value;
-    setSortRules(newRules);
-    setPage(1);
-  };
-
-  const handleRemoveSort = (index) => {
-    const newRules = sortRules.filter((_, i) => i !== index);
-    // บังคับให้ต้องมีอย่างน้อย 1 การจัดเรียง
-    if (newRules.length === 0) {
-        setSortRules([{ field: 'createdAt', direction: 'desc' }]);
-    } else {
-        setSortRules(newRules);
-    }
-    setPage(1);
-  };
-
-  const handleFilterChange = (e, type) => {
-    if (type === 'status') setFilterStatus(e.target.value);
-    if (type === 'day') setFilterDay(e.target.value);
-    setPage(1); 
-  };
 
   useEffect(() => {
     fetchAnimes();
@@ -120,7 +95,7 @@ const Animes = () => {
             <label className="text-sm font-semibold text-gray-600 mr-2">สถานะ:</label>
             <select 
               value={filterStatus} 
-              onChange={(e) => handleFilterChange(e, 'status')}
+              onChange={(e) => handleFilterChange(e, 'status', setFilterStatus, setFilterDay, setPage)}
               className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="">ทั้งหมด (All)</option>
@@ -136,7 +111,7 @@ const Animes = () => {
             <label className="text-sm font-semibold text-gray-600 mr-2">วันที่ตอนใหม่มา:</label>
             <select 
               value={filterDay} 
-              onChange={(e) => handleFilterChange(e, 'day')}
+              onChange={(e) => handleFilterChange(e, 'day', setFilterStatus, setFilterDay, setPage)}
               className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="">ทุกวัน (All)</option>
@@ -157,7 +132,7 @@ const Animes = () => {
               <span className="text-xs font-bold text-gray-500 w-6 text-center">{index + 1}.</span>
               <select 
                 value={rule.field}
-                onChange={(e) => handleUpdateSort(index, 'field', e.target.value)}
+                onChange={(e) => handleUpdateSort(index, 'field', e.target.value, sortRules, setSortRules, setPage)}
                 className="border rounded px-2 py-1 text-sm outline-none focus:border-indigo-500"
               >
                 {sortOptions.map(opt => (
@@ -167,7 +142,7 @@ const Animes = () => {
 
               <select 
                 value={rule.direction}
-                onChange={(e) => handleUpdateSort(index, 'direction', e.target.value)}
+                onChange={(e) => handleUpdateSort(index, 'direction', e.target.value, sortRules, setSortRules, setPage)}
                 className="border rounded px-2 py-1 text-sm outline-none focus:border-indigo-500"
               >
                 <option value="asc">น้อยไปมาก / เก่าไปใหม่ / A-Z / จันทร์-อาทิตย์-อื่น ๆ</option>
@@ -176,7 +151,7 @@ const Animes = () => {
 
               {sortRules.length > 1 && (
                 <button 
-                  onClick={() => handleRemoveSort(index)}
+                  onClick={() => handleRemoveSort(index, sortRules, setSortRules, setPage)}
                   className="text-red-500 hover:text-red-700 text-sm font-bold px-2"
                   title="ลบเงื่อนไขนี้"
                 >
@@ -187,7 +162,7 @@ const Animes = () => {
           ))}
           
           <button 
-            onClick={handleAddSort}
+            onClick={() => handleAddSort(sortRules, setSortRules)}
             className="text-sm text-indigo-600 font-medium hover:text-indigo-800 self-start mt-1 flex items-center"
           >
             + เพิ่มเงื่อนไขการเรียง
