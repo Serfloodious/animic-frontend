@@ -23,7 +23,6 @@ export default function ChangePassword() {
     try {
       // ยิง API เปลี่ยนรหัสผ่าน
       await API.put('/auth/updatepassword', formData);
-      
       toast.success('เปลี่ยนรหัสผ่านสำเร็จ!');
       navigate('/profile');
     } catch (err) {

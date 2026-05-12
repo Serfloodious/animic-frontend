@@ -4,7 +4,11 @@ import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
-import { formatDate, getDayColor } from '../utils/helpers';
+import { 
+  formatDate, 
+  getDayColor,
+  handleDeleteData
+} from '../utils/helpers';
 
 const animeDetail = () => {
   const { id } = useParams();
@@ -28,14 +32,14 @@ const animeDetail = () => {
     fetchanime();
   }, [id, navigate]);
 
-  const handleDelete = async () => {
-    try {
-      await API.delete(`/animes/${id}`);
-      toast.success('ลบข้อมูลเรียบร้อยแล้ว');
-      navigate('/animes');
-    } catch (err) {
-      toast.error('เกิดข้อผิดพลาดในการลบข้อมูล');
-    }
+  const onDelete = () => {
+    handleDeleteData({
+      API,
+      type: 'animes',
+      id,
+      toast,
+      navigate
+    });
   };
 
   if (loading) return <Spinner/>
@@ -157,7 +161,7 @@ const animeDetail = () => {
                 ยกเลิก
               </button>
               <button 
-                onClick={handleDelete}
+                onClick={onDelete}
                 className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium"
               >
                 ยืนยันการลบ
