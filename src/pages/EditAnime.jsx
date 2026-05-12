@@ -5,16 +5,16 @@ import API from '../api/axios';
 
 import { 
   getStatusColor,
+  daysOfWeek,
   handleChange,
   handleDayChange,
-  handleStatusChange
+  handleStatusChange,
+  handleEditSubmit
 } from '../utils/helpers';
 
 const EditAnime = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
   const [formData, setFormData] = useState({
     title: '',
     status: 'Watching',
@@ -35,7 +35,6 @@ const EditAnime = () => {
       try {
         const res = await API.get(`/animes/${id}`);
         const data = res.data.data;
-        
         const formattedDate = data.resumeDate ? data.resumeDate.split('T')[0] : '';
         const safeReleaseDays = data.releaseDays || [];
         
@@ -58,22 +57,17 @@ const EditAnime = () => {
     // eslint-disable-next-line
   }, [id, navigate]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // รวมวันจากปุ่มที่กด และช่องกรอกเอง
-      let finalReleaseDays = formData.releaseDays.filter(d => daysOfWeek.includes(d));
-      if (customDates.trim() !== '') {
-        const parsedDates = customDates.split(',').map(d => d.trim()).filter(d => d);
-        finalReleaseDays = [...finalReleaseDays, ...parsedDates];
-      }
-
-      await API.put(`/animes/${id}`, { ...formData, releaseDays: finalReleaseDays });
-      toast.success('บันทึกการแก้ไขสำเร็จ!');
-      navigate(`/animes/${id}`);
-    } catch (err) {
-      toast.error('แก้ไขข้อมูลไม่สำเร็จ กรุณาลองใหม่');
-    }
+  const onSubmit = (e) => {
+    handleEditSubmit({
+      e,
+      type: 'animes',
+      id,
+      formData,
+      customDates,
+      navigate,
+      API,
+      toast
+    });
   };
 
   return (
@@ -83,7 +77,7 @@ const EditAnime = () => {
         แก้ไขอนิเมะ: {formData.title}
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อเรื่อง (Title) *</label>
           <input type="text" name="title" required value={formData.title} onChange={(e) => handleChange(e, formData, setFormData)}

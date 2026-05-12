@@ -5,16 +5,16 @@ import API from '../api/axios';
 
 import { 
   getStatusColor,
+  daysOfWeek,
   handleChange,
   handleDayChange,
-  handleStatusChange
+  handleStatusChange,
+  handleEditSubmit
 } from '../utils/helpers';
 
 const EditComic = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
   const [formData, setFormData] = useState({
     title: '',
     status: 'Reading',
@@ -35,7 +35,6 @@ const EditComic = () => {
       try {
         const res = await API.get(`/comics/${id}`);
         const data = res.data.data;
-        
         const formattedDate = data.resumeDate ? data.resumeDate.split('T')[0] : '';
         const safeReleaseDays = data.releaseDays || [];
         
@@ -57,52 +56,18 @@ const EditComic = () => {
     // eslint-disable-next-line
   }, [id, navigate]);
 
-  /*
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-  };
-  
-  const handleDayChange = (day) => {
-    const updatedDays = formData.releaseDays.includes(day)
-      ? formData.releaseDays.filter(d => d !== day)
-      : [...formData.releaseDays, day];
-    setFormData({ 
-      ...formData, 
-      releaseDays: updatedDays 
-    });
-  };
-  
-  const handleStatusChange = (newStatus) => {
-    const newColor = getStatusColor(newStatus, formData.isRead);
-    setFormData({ 
-      ...formData, 
-      status: newStatus, 
-      color: newColor,
-      resumeDate: newStatus === 'Stalled' ? formData.resumeDate : ''
-    });
-  };
-  */
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      let finalReleaseDays = formData.releaseDays.filter(d => daysOfWeek.includes(d));
-      if (customDates.trim() !== '') {
-        const parsedDates = customDates.split(',').map(d => d.trim()).filter(d => d);
-        finalReleaseDays = [...finalReleaseDays, ...parsedDates];
-      }
-
-      await API.put(`/comics/${id}`, { ...formData, releaseDays: finalReleaseDays });
-      toast.success('บันทึกการแก้ไขสำเร็จ!');
-      navigate(`/comics/${id}`);
-    } catch (err) {
-      toast.error('แก้ไขข้อมูลไม่สำเร็จ กรุณาลองใหม่');
-    }
-  };
+  const onSubmit = (e) => {
+      handleEditSubmit({
+        e,
+        type: 'comics',
+        id,
+        formData,
+        customDates,
+        navigate,
+        API,
+        toast
+      });
+    };
 
   return (
     <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-md border-t-4 border-blue-500 mt-6">
@@ -111,7 +76,7 @@ const EditComic = () => {
         แก้ไขคอมมิก: {formData.title}
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อเรื่อง (Title) *</label>
           <input type="text" name="title" required value={formData.title} onChange={(e) => handleChange(e, formData, setFormData)}

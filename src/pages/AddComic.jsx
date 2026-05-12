@@ -4,15 +4,15 @@ import API from '../api/axios';
 
 import { 
   getStatusColor, 
+  daysOfWeek,
   handleChange, 
   handleDayChange, 
-  handleStatusChange 
+  handleStatusChange,
+  handleAddSubmit
 } from '../utils/helpers';
 
 export default function AddComic() {
   const navigate = useNavigate();
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
   const [formData, setFormData] = useState({
     title: '',
     status: 'Reading',
@@ -30,33 +30,17 @@ export default function AddComic() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      let finalReleaseDays = [...formData.releaseDays];
-      if (customDates.trim() !== '') {
-        const parsedDates = customDates.split(',').map(d => d.trim()).filter(d => d);
-        finalReleaseDays = [...finalReleaseDays, ...parsedDates];
-      }
-
-      // นำข้อมูลที่รวมแล้วไปแทนที่ก่อนส่ง API
-      const dataToSend = { 
-        ...formData, 
-        releaseDays: finalReleaseDays,
-        color: getStatusColor(formData.status, formData.isRead)
-      };
-
-      // ส่งข้อมูลไปเซฟ (Backend จะแปลง string วันที่เป็น Date object ให้อัตโนมัติ)
-      await API.post('/comics', dataToSend);
-      navigate('/comics');
-    } catch (err) {
-        setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการเพิ่มคอมมิก');
-    } finally {
-        setLoading(false);
-    }
+  const onSubmit = (e) => {
+    handleAddSubmit({
+      e,
+      type: 'comics',
+      formData,
+      customDates,
+      setLoading,
+      setError,
+      navigate,
+      API
+    });
   };
 
   return (
@@ -68,7 +52,7 @@ export default function AddComic() {
 
       {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm">{error}</div>}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={onSubmit} className="space-y-5">
         {/* ฟิลด์พื้นฐาน */}
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อเรื่อง (Title) *</label>
