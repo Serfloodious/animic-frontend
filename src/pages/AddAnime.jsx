@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 
-import { getStatusColor } from '../utils/helpers';
+import { 
+  getStatusColor, 
+  handleChange, 
+  handleDayChange, 
+  handleStatusChange 
+} from '../utils/helpers';
 
 export default function AddAnime() {
   const navigate = useNavigate();
@@ -23,34 +28,6 @@ export default function AddAnime() {
   const [customDates, setCustomDates] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-  };
-
-  const handleDayChange = (day) => {
-    const updatedDays = formData.releaseDays.includes(day)
-      ? formData.releaseDays.filter(d => d !== day)
-      : [...formData.releaseDays, day];
-    setFormData({ 
-      ...formData, 
-      releaseDays: updatedDays 
-    });
-  };
-
-  const handleStatusChange = (newStatus) => {
-    const newColor = getStatusColor(newStatus, formData.isWatched);
-    setFormData({ 
-      ...formData, 
-      status: newStatus, 
-      color: newColor,
-      resumeDate: newStatus === 'Stalled' ? formData.resumeDate : ''
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,14 +69,14 @@ export default function AddAnime() {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อเรื่อง (Title) *</label>
-          <input type="text" name="title" value={formData.title} onChange={handleChange} required
+          <input type="text" name="title" value={formData.title} onChange={(e) => handleChange(e, formData, setFormData)} required
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">สถานะ (Status) *</label>
-            <select name="status" value={formData.status} onChange={(e) => handleStatusChange(e.target.value)}
+            <select name="status" value={formData.status} onChange={(e) => handleStatusChange(e.target.value, formData, setFormData)}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
               style={{ borderLeft: `4px solid ${formData.color}` }}>
               <option value="Watching">กำลังดู (Watching)</option>
@@ -111,7 +88,7 @@ export default function AddAnime() {
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">แพลตฟอร์ม (Platform)</label>
-            <input type="text" name="platform" value={formData.platform} onChange={handleChange}
+            <input type="text" name="platform" value={formData.platform} onChange={(e) => handleChange(e, formData, setFormData)}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
           </div>
         </div>
@@ -136,7 +113,7 @@ export default function AddAnime() {
           <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ตอนใหม่มา (Release Days)</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {daysOfWeek.map(day => (
-              <button key={day} type="button" onClick={() => handleDayChange(day)}
+              <button key={day} type="button" onClick={() => handleDayChange(day, formData, setFormData)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
                   formData.releaseDays.includes(day) ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}>
@@ -167,7 +144,7 @@ export default function AddAnime() {
               type="date" 
               name="resumeDate" 
               value={formData.resumeDate} 
-              onChange={handleChange} 
+              onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded" 
             />
           </div>
@@ -178,7 +155,7 @@ export default function AddAnime() {
           <div>
             <label className="block text-gray-700 text-xs font-bold mb-1">ตอนที่ (Ep.)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-purple-500 overflow-hidden bg-white">
-              <input type="number" name="episode" value={formData.episode} onChange={handleChange} min="0" 
+              <input type="number" name="episode" value={formData.episode} onChange={(e) => handleChange(e, formData, setFormData)} min="0" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
                 <button type="button" onClick={() => setFormData({
@@ -199,7 +176,7 @@ export default function AddAnime() {
           <div>
             <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (Rating) (0-10)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-purple-500 overflow-hidden bg-white">
-              <input type="number" name="rating" value={formData.rating} onChange={handleChange} min="0" max="10" 
+              <input type="number" name="rating" value={formData.rating} onChange={(e) => handleChange(e, formData, setFormData)} min="0" max="10" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
                 <button type="button" onClick={() => setFormData({
@@ -219,7 +196,7 @@ export default function AddAnime() {
 
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">บันทึกเพิ่มเติม (Note)</label>
-          <textarea name="note" value={formData.note} onChange={handleChange} rows="2" className="w-full px-3 py-2 border rounded" />
+          <textarea name="note" value={formData.note} onChange={(e) => handleChange(e, formData, setFormData)} rows="2" className="w-full px-3 py-2 border rounded" />
         </div>
 
         <div className="flex gap-4 pt-4 border-t">

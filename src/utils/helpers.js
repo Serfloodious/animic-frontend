@@ -73,3 +73,33 @@ export const handleFilterChange = (e, type, setFilterStatus, setFilterDay, setPa
   if (type === 'day') setFilterDay(e.target.value);
   setPage(1); 
 };
+
+export const handleChange = (e, formData, setFormData) => {
+  const { name, value } = e.target;
+  setFormData({ 
+    ...formData, 
+    [name]: value 
+  });
+};
+
+// ฟังก์ชันจัดการการติ๊กเลือกวัน (releaseDays)
+export const handleDayChange = (day, formData, setFormData) => {
+  const updatedDays = formData.releaseDays.includes(day)
+    ? formData.releaseDays.filter(d => d !== day)
+    : [...formData.releaseDays, day];
+  setFormData({ 
+    ...formData, 
+    releaseDays: updatedDays 
+  });
+};
+
+export const handleStatusChange = (newStatus, formData, setFormData) => {
+  const isUpToDate = formData.isWatched !== undefined ? formData.isWatched : formData.isRead;
+  const newColor = getStatusColor(newStatus, isUpToDate);
+  setFormData({ 
+    ...formData, 
+    status: newStatus, 
+    color: newColor,
+    resumeDate: newStatus === 'Stalled' ? formData.resumeDate : ''
+  });
+};
