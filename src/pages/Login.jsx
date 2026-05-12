@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
 
+import { handleChange } from '../utils/helpers';
+
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth(); // ดึงฟังก์ชัน login มาจาก Context
@@ -10,14 +12,6 @@ export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,13 +55,13 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล (Email)</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} 
+            <input type="email" name="email" value={formData.email} onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" 
               placeholder="example@mail.com" />
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">รหัสผ่าน</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} 
+            <input type="password" name="password" value={formData.password} onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" 
               placeholder="กรอกรหัสผ่านของคุณ" />
           </div>

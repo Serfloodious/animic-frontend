@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 
+import { handleChange } from '../utils/helpers';
+
 export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -12,15 +14,6 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // ฟังก์ชันอัปเดตค่าเมื่อพิมพ์ในช่องกรอก
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-  };
 
   // ฟังก์ชันกดยืนยันฟอร์ม
   const handleSubmit = async (e) => {
@@ -66,25 +59,25 @@ export default function Register() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อผู้ใช้ (Username)</label>
-            <input type="text" name="username" value={formData.username} onChange={handleChange} 
+            <input type="text" name="username" value={formData.username} onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" 
               placeholder="ตั้งชื่อผู้ใช้งาน" />
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล (Email)</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} 
+            <input type="email" name="email" value={formData.email} onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" 
               placeholder="example@mail.com" />
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">รหัสผ่าน</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} 
+            <input type="password" name="password" value={formData.password} onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" 
               placeholder="อย่างน้อย 6 ตัวอักษร" />
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">ยืนยันรหัสผ่าน</label>
-            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} 
+            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" 
               placeholder="กรอกรหัสผ่านอีกครั้ง" />
           </div>

@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
+import { handleChange } from '../utils/helpers';
+
 export default function EditProfile() {
   const { user, checkUser } = useAuth(); // ใช้ checkUser เพื่อดึงข้อมูลใหม่หลังอัปเดตเสร็จ
   const navigate = useNavigate();
@@ -21,14 +23,6 @@ export default function EditProfile() {
       });
     }
   }, [user]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,12 +54,12 @@ export default function EditProfile() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อผู้ใช้ (Username)</label>
-          <input type="text" name="username" value={formData.username} onChange={handleChange} 
+          <input type="text" name="username" value={formData.username} onChange={(e) => handleChange(e, formData, setFormData)} 
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-gray-800" required />
         </div>
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล (Email)</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} 
+          <input type="email" name="email" value={formData.email} onChange={(e) => handleChange(e, formData, setFormData)} 
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-gray-800" required />
         </div>
 

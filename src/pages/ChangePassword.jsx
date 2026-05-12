@@ -3,19 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
+import { handleChange } from '../utils/helpers';
+
 export default function ChangePassword() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ currentPassword: '', newPassword: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,12 +42,12 @@ export default function ChangePassword() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">รหัสผ่านปัจจุบัน</label>
-          <input type="password" name="currentPassword" value={formData.currentPassword} onChange={handleChange} 
+          <input type="password" name="currentPassword" value={formData.currentPassword} onChange={(e) => handleChange(e, formData, setFormData)} 
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" required />
         </div>
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">รหัสผ่านใหม่</label>
-          <input type="password" name="newPassword" value={formData.newPassword} onChange={handleChange} 
+          <input type="password" name="newPassword" value={formData.newPassword} onChange={(e) => handleChange(e, formData, setFormData)} 
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" required 
             placeholder="อย่างน้อย 6 ตัวอักษร" />
         </div>

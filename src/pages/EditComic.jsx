@@ -3,7 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
-import { getStatusColor } from '../utils/helpers';
+import { 
+  getStatusColor,
+  handleChange,
+  handleDayChange,
+  handleStatusChange
+} from '../utils/helpers';
 
 const EditComic = () => {
   const { id } = useParams();
@@ -52,6 +57,7 @@ const EditComic = () => {
     // eslint-disable-next-line
   }, [id, navigate]);
 
+  /*
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ 
@@ -59,7 +65,7 @@ const EditComic = () => {
       [name]: value 
     });
   };
-
+  
   const handleDayChange = (day) => {
     const updatedDays = formData.releaseDays.includes(day)
       ? formData.releaseDays.filter(d => d !== day)
@@ -69,7 +75,7 @@ const EditComic = () => {
       releaseDays: updatedDays 
     });
   };
-
+  
   const handleStatusChange = (newStatus) => {
     const newColor = getStatusColor(newStatus, formData.isRead);
     setFormData({ 
@@ -79,6 +85,7 @@ const EditComic = () => {
       resumeDate: newStatus === 'Stalled' ? formData.resumeDate : ''
     });
   };
+  */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,14 +114,14 @@ const EditComic = () => {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อเรื่อง (Title) *</label>
-          <input type="text" name="title" required value={formData.title} onChange={handleChange}
+          <input type="text" name="title" required value={formData.title} onChange={(e) => handleChange(e, formData, setFormData)}
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">สถานะ (Status) *</label>
-            <select name="status" value={formData.status} onChange={(e) => handleStatusChange(e.target.value)}
+            <select name="status" value={formData.status} onChange={(e) => handleStatusChange(e.target.value, formData, setFormData)}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               style={{ borderLeft: `4px solid ${formData.color}` }}>
               <option value="Reading">กำลังอ่าน (Reading)</option>
@@ -126,7 +133,7 @@ const EditComic = () => {
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">แพลตฟอร์ม (Platform)</label>
-            <input type="text" name="platform" value={formData.platform} onChange={handleChange}
+            <input type="text" name="platform" value={formData.platform} onChange={(e) => handleChange(e, formData, setFormData)}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
         </div>
@@ -150,7 +157,7 @@ const EditComic = () => {
           <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ตอนใหม่มา (Release Days)</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {daysOfWeek.map(day => (
-              <button key={day} type="button" onClick={() => handleDayChange(day)}
+              <button key={day} type="button" onClick={() => handleDayChange(day, formData, setFormData)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
                   formData.releaseDays.includes(day) ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}>
@@ -174,7 +181,7 @@ const EditComic = () => {
               type="date" 
               name="resumeDate" 
               value={formData.resumeDate} 
-              onChange={handleChange} 
+              onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded" 
             />
           </div>
@@ -184,7 +191,7 @@ const EditComic = () => {
           <div>
             <label className="block text-gray-700 text-xs font-bold mb-1">เล่ม/ซีซัน (Vol./SS)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-white">
-              <input type="number" name="volume" value={formData.volume} onChange={handleChange} min="0" 
+              <input type="number" name="volume" value={formData.volume} onChange={(e) => handleChange(e, formData, setFormData)} min="0" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
                 <button type="button" onClick={() => setFormData({
@@ -203,7 +210,7 @@ const EditComic = () => {
           <div>
             <label className="block text-gray-700 text-xs font-bold mb-1">ตอน (Ch.)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-white">
-              <input type="number" name="chapter" value={formData.chapter} onChange={handleChange} min="0" 
+              <input type="number" name="chapter" value={formData.chapter} onChange={(e) => handleChange(e, formData, setFormData)} min="0" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
                 <button type="button" onClick={() => setFormData({
@@ -222,7 +229,7 @@ const EditComic = () => {
           <div>
             <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (Rating) (0-10)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden bg-white">
-              <input type="number" name="rating" value={formData.rating} onChange={handleChange} min="0" max="10" 
+              <input type="number" name="rating" value={formData.rating} onChange={(e) => handleChange(e, formData, setFormData)} min="0" max="10" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
               <div className="flex border-l">
                 <button type="button" onClick={() => setFormData({
@@ -242,7 +249,7 @@ const EditComic = () => {
 
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">บันทึกเพิ่มเติม (Note)</label>
-          <textarea name="note" value={formData.note} onChange={handleChange} rows="2" className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <textarea name="note" value={formData.note} onChange={(e) => handleChange(e, formData, setFormData)} rows="2" className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div className="flex gap-4 pt-4 border-t">
