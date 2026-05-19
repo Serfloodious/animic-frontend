@@ -3,14 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
-import { 
-  getStatusColor,
-  daysOfWeek,
-  handleChange,
-  handleDayChange,
-  handleStatusChange,
-  handleEditSubmit
-} from '../utils/helpers';
+import { daysOfWeek } from '../utils/constants';
+import { getStatusColor } from '../utils/formatters';
+import { handleChange, handleDayChange, handleStatusChange } from '../utils/formHandlers';
+import { handleEditSubmit } from '../utils/apiHandlers';
 
 const EditAnime = () => {
   const { id } = useParams();

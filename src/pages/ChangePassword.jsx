@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
-import { handleChange } from '../utils/helpers';
+import { handleChange } from '../utils/formHandlers';
 
 export default function ChangePassword() {
   const navigate = useNavigate();

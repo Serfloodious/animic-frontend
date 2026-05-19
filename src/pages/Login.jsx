@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
 
-import { handleChange } from '../utils/helpers';
+import { handleChange } from '../utils/formHandlers';
 
 export default function Login() {
   const navigate = useNavigate();

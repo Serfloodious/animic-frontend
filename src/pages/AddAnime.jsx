@@ -2,14 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 
-import { 
-  getStatusColor, 
-  daysOfWeek,
-  handleChange, 
-  handleDayChange, 
-  handleStatusChange,
-  handleAddSubmit
-} from '../utils/helpers';
+import { daysOfWeek } from '../utils/constants';
+import { getStatusColor } from '../utils/formatters';
+import { handleChange, handleDayChange, handleStatusChange } from '../utils/formHandlers';
+import { handleAddSubmit } from '../utils/apiHandlers';
 
 export default function AddAnime() {
   const navigate = useNavigate();

@@ -4,11 +4,8 @@ import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
-import { 
-  formatDate, 
-  getDayColor,
-  handleDeleteData
-} from '../utils/helpers';
+import { formatDate, getDayColor } from '../utils/formatters';
+import { handleDeleteData } from '../utils/apiHandlers';
 
 const ComicDetail = () => {
   const { id } = useParams();

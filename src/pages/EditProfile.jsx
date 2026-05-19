@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 
-import { handleChange } from '../utils/helpers';
+import { handleChange } from '../utils/formHandlers';
 
 export default function EditProfile() {
   const { user, checkUser } = useAuth(); // ใช้ checkUser เพื่อดึงข้อมูลใหม่หลังอัปเดตเสร็จ

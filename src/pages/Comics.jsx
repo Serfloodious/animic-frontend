@@ -4,15 +4,14 @@ import Spinner from '../components/Spinner';
 import StatusBadge from '../components/StatusBadge';
 import API from '../api/axios'; 
 
+import { dayOptions } from '../utils/constants';
+import { formatDate, getDayColor } from '../utils/formatters';
 import { 
-  formatDate, 
-  getDayColor, 
-  dayOptions,
-  handleAddSort,
-  handleUpdateSort,
-  handleRemoveSort,
-  handleFilterChange
-} from '../utils/helpers';
+  handleAddSort, 
+  handleUpdateSort, 
+  handleRemoveSort, 
+  handleFilterChange 
+} from '../utils/sortHandlers';
 
 const Comics = () => {
   const [comics, setComics] = useState([]);
