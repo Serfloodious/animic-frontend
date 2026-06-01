@@ -19,12 +19,14 @@ export const handleDayChange = (day, formData, setFormData) => {
 };
 
 export const handleStatusChange = (newStatus, formData, setFormData) => {
-  const isUpToDate = formData.isWatched !== undefined ? formData.isWatched : formData.isRead;
+  const currentUpToDate = formData.isWatched !== undefined ? formData.isWatched : formData.isRead;
+  const isUpToDate = (newStatus === 'Watching' || newStatus === 'Reading') ? currentUpToDate : false;
   const newColor = getStatusColor(newStatus, isUpToDate);
   setFormData({ 
     ...formData, 
     status: newStatus, 
     color: newColor,
-    resumeDate: newStatus === 'Stalled' ? formData.resumeDate : ''
+    resumeDate: newStatus === 'Stalled' ? formData.resumeDate : '',
+    ...(formData.isWatched !== undefined ? { isWatched: isUpToDate } : { isRead: isUpToDate })
   });
 };

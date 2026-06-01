@@ -99,20 +99,22 @@ const EditComic = () => {
           </div>
         </div>
 
-        <div className="flex items-center mt-2">
-          <input type="checkbox" id="isRead" checked={formData.isRead} onChange={(e) => {
-              const checked = e.target.checked;
-              setFormData({ 
-                ...formData, 
-                isRead: checked, 
-                color: getStatusColor(formData.status, checked) 
-              });
-            }}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer" />
-          <label htmlFor="isRead" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">
-            อ่านทันตอนล่าสุดแล้ว (Green Mode)
-          </label>
-        </div>
+        {formData.status === 'Reading' && (
+          <div className="flex items-center mt-2">
+            <input type="checkbox" id="isRead" checked={formData.isRead} onChange={(e) => {
+                const checked = e.target.checked;
+                setFormData({ 
+                  ...formData, 
+                  isRead: checked, 
+                  color: getStatusColor(formData.status, checked) 
+                });
+              }}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer" />
+            <label htmlFor="isRead" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">
+              อ่านทันตอนล่าสุดแล้ว (Green Mode)
+            </label>
+          </div>
+        )}
 
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ตอนใหม่มา (Release Days)</label>

@@ -74,20 +74,22 @@ export default function AddAnime() {
           </div>
         </div>
 
-        <div className="flex items-center mt-2">
-          <input type="checkbox" id="isWatched" checked={formData.isWatched} onChange={(e) => {
-              const checked = e.target.checked;
-              setFormData({ 
-                ...formData, 
-                isWatched: checked, 
-                color: getStatusColor(formData.status, checked) 
-              });
-            }}
-            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer" />
-          <label htmlFor="isWatched" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">
-            ดูทันตอนล่าสุดแล้ว (Green Mode)
-          </label>
-        </div>
+        {formData.status === 'Watching' && (
+          <div className="flex items-center mt-2">
+            <input type="checkbox" id="isWatched" checked={formData.isWatched} onChange={(e) => {
+                const checked = e.target.checked;
+                setFormData({ 
+                  ...formData, 
+                  isWatched: checked, 
+                  color: getStatusColor(formData.status, checked) 
+                });
+              }}
+              className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer" />
+            <label htmlFor="isWatched" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">
+              ดูทันตอนล่าสุดแล้ว (Green Mode)
+            </label>
+          </div>
+        )}
 
         {/* Release Days */}
         <div>
