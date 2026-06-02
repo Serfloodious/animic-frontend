@@ -21,17 +21,34 @@ const Animes = () => {
   const [error, setError] = useState('');
 
   // --- States สำหรับ Filters ---
-  const [filterStatus, setFilterStatus] = useState([]);
-  const [filterDay, setFilterDay] = useState('');
-  const [page, setPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState(() => {
+    const saved = localStorage.getItem('anime_filterStatus');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [filterDay, setFilterDay] = useState(() => {
+    return localStorage.getItem('anime_filterDay') || '';
+  });
+
+  const [page, setPage] = useState(() => {
+    const saved = localStorage.getItem('anime_page');
+    return saved ? parseInt(saved, 10) : 1;
+  });
+
   const [pagination, setPagination] = useState({});
 
   // --- States สำหรับ Search ---
-  const [searchFilters, setSearchFilters] = useState({ title: '', platform: '' });
+  const [searchFilters, setSearchFilters] = useState(() => {
+    const saved = localStorage.getItem('anime_searchFilters');
+    return saved ? JSON.parse(saved) : { title: '', platform: '' };
+  });
 
   // --- States สำหรับ Multi-Sort ---
   // เริ่มต้นด้วย dayOrder (การเรียงวัน จันทร์-อาทิตย์-อื่น ๆ)
-  const [sortRules, setSortRules] = useState([{ field: 'dayOrder', direction: 'asc' }]);
+  const [sortRules, setSortRules] = useState(() => {
+    const saved = localStorage.getItem('anime_sortRules');
+    return saved ? JSON.parse(saved) : [{ field: 'dayOrder', direction: 'asc' }];
+  });
 
   const sortOptions = [
     { value: 'dayOrder', label: 'วันที่ตอนใหม่มา (Release Days)' },
@@ -43,6 +60,14 @@ const Animes = () => {
     { value: 'resumeDate', label: 'วันที่คาดว่าจะกลับมาดู (Resume Date)' },
     { value: 'createdAt', label: 'วันที่เพิ่ม (Created Date)' }
   ];
+
+  useEffect(() => {
+    localStorage.setItem('anime_filterStatus', JSON.stringify(filterStatus));
+    localStorage.setItem('anime_filterDay', filterDay);
+    localStorage.setItem('anime_page', page.toString());
+    localStorage.setItem('anime_searchFilters', JSON.stringify(searchFilters));
+    localStorage.setItem('anime_sortRules', JSON.stringify(sortRules));
+  }, [filterStatus, filterDay, sortRules, page, searchFilters]);
 
   useEffect(() => {
     fetchAnimes();

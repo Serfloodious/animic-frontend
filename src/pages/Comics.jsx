@@ -21,17 +21,34 @@ const Comics = () => {
   const [error, setError] = useState('');
 
   // --- States สำหรับ Filters ---
-  const [filterStatus, setFilterStatus] = useState([]);
-  const [filterDay, setFilterDay] = useState('');
-  const [page, setPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState(() => {
+    const saved = localStorage.getItem('comic_filterStatus');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [filterDay, setFilterDay] = useState(() => {
+    return localStorage.getItem('comic_filterDay') || '';
+  });
+
+  const [page, setPage] = useState(() => {
+    const saved = localStorage.getItem('comic_page');
+    return saved ? parseInt(saved, 10) : 1;
+  });
+
   const [pagination, setPagination] = useState({});
 
   // --- States สำหรับ Search ---
-  const [searchFilters, setSearchFilters] = useState({ title: '', platform: '' });
+  const [searchFilters, setSearchFilters] = useState(() => {
+    const saved = localStorage.getItem('comic_searchFilters');
+    return saved ? JSON.parse(saved) : { title: '', platform: '' };
+  });
 
   // --- States สำหรับ Multi-Sort ---
   // เริ่มต้นด้วย dayOrder (การเรียงวัน จันทร์-อาทิตย์-อื่น ๆ)
-  const [sortRules, setSortRules] = useState([{ field: 'dayOrder', direction: 'asc' }]);
+  const [sortRules, setSortRules] = useState(() => {
+    const saved = localStorage.getItem('comic_sortRules');
+    return saved ? JSON.parse(saved) : [{ field: 'dayOrder', direction: 'asc' }];
+  });
 
   const sortOptions = [
     { value: 'dayOrder', label: 'วันที่ตอนใหม่มา (Release Days)' },
@@ -44,6 +61,14 @@ const Comics = () => {
     { value: 'resumeDate', label: 'วันที่คาดว่าจะกลับมาอ่าน (Resume Date)' },
     { value: 'createdAt', label: 'วันที่เพิ่ม (Created Date)' }
   ];
+
+  useEffect(() => {
+    localStorage.setItem('comic_filterStatus', JSON.stringify(filterStatus));
+    localStorage.setItem('comic_filterDay', filterDay);
+    localStorage.setItem('comic_page', page.toString());
+    localStorage.setItem('comic_searchFilters', JSON.stringify(searchFilters));
+    localStorage.setItem('comic_sortRules', JSON.stringify(sortRules));
+  }, [filterStatus, filterDay, sortRules, page, searchFilters]);
 
   // Fetch เมื่อ States เปลี่ยนแปลง
   useEffect(() => {
