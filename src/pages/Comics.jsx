@@ -10,7 +10,8 @@ import {
   handleAddSort, 
   handleUpdateSort, 
   handleRemoveSort, 
-  handleFilterChange 
+  handleFilterChange,
+  handleSearchChange
 } from '../utils/sortHandlers';
 
 const Comics = () => {
@@ -23,6 +24,9 @@ const Comics = () => {
   const [filterDay, setFilterDay] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({});
+
+  // --- States สำหรับ Search ---
+  const [searchFilters, setSearchFilters] = useState({ title: '', platform: '' });
 
   // --- States สำหรับ Multi-Sort ---
   // เริ่มต้นด้วย dayOrder (การเรียงวัน จันทร์-อาทิตย์-อื่น ๆ)
@@ -44,7 +48,7 @@ const Comics = () => {
   useEffect(() => {
     fetchComics();
     // eslint-disable-next-line
-  }, [filterStatus, filterDay, sortRules, page]);
+  }, [filterStatus, filterDay, sortRules, page, searchFilters]);
 
   const fetchComics = async () => {
     try {
@@ -64,6 +68,10 @@ const Comics = () => {
       if (filterStatus) params.append('status', filterStatus);
       if (filterDay) params.append('releaseDays', filterDay); // Backend จะค้นหาคำตรงตัว
 
+      // Add search filters to params
+      if (searchFilters.title) params.append('title', searchFilters.title);
+      if (searchFilters.platform) params.append('platform', searchFilters.platform);
+
       const res = await API.get(`/comics?${params.toString()}`);
       
       setComics(res.data.data);
@@ -76,8 +84,6 @@ const Comics = () => {
     }
   };
 
-  if (loading && comics.length === 0) return <Spinner/>;
-
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -88,6 +94,36 @@ const Comics = () => {
         >
           + เพิ่มคอมมิก
         </Link>
+      </div>
+
+      {/* --- ส่วนเครื่องมือค้นหา (Search Tools) --- */}
+      <div className="bg-white p-5 rounded-lg shadow-sm mb-4 border border-gray-100">
+        <h3 className="text-sm font-bold text-gray-700 mb-3 border-b pb-2">ค้นหาข้อมูล (Search)</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* ช่องค้นหาด้วยชื่อเรื่อง */}
+          <div>
+            <label className="block text-xs font-bold text-gray-600 mb-1">ชื่อเรื่อง (Title):</label>
+            <input
+              type="text"
+              placeholder="พิมพ์คำที่ต้องการค้นหา..."
+              value={searchFilters.title}
+              onChange={(e) => handleSearchChange('title', e.target.value, setSearchFilters, setPage)}
+              className="w-full border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none border-gray-300"
+            />
+          </div>
+
+          {/* ช่องค้นหาด้วยแพลตฟอร์ม */}
+          <div>
+            <label className="block text-xs font-bold text-gray-600 mb-1">แพลตฟอร์ม (Platform):</label>
+            <input
+              type="text"
+              placeholder="เช่น Netflix, Bilibili, Webtoon..."
+              value={searchFilters.platform}
+              onChange={(e) => handleSearchChange('platform', e.target.value, setSearchFilters, setPage)}
+              className="w-full border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none border-gray-300"
+            />
+          </div>
+        </div>
       </div>
 
       {/* --- ส่วนเครื่องมือกรอง (Filters) --- */}
@@ -176,8 +212,12 @@ const Comics = () => {
       {/* Error Message */}
       {error && <div className="text-center mb-6 text-red-500 bg-red-50 p-3 rounded">{error}</div>}
 
-      {/* Grid สำหรับแสดงการ์ด (โครงสร้างเดิม) */}
-      {comics.length === 0 && !loading ? (
+      {/* --- Comic Grid --- */}
+      { loading ? (
+        <div className="flex justify-center py-20">
+          <Spinner />
+        </div>
+      ) : comics.length === 0 ? (
         <div className="text-center py-10 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
           ไม่พบข้อมูลคอมมิกตามเงื่อนไขที่เลือก
         </div>

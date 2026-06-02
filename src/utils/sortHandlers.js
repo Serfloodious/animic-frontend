@@ -28,3 +28,11 @@ export const handleFilterChange = (e, type, setFilterStatus, setFilterDay, setPa
   if (type === 'day') setFilterDay(e.target.value);
   setPage(1); 
 };
+
+export const handleSearchChange = (key, value, setSearchFilters, setPage) => {
+  setSearchFilters(prev => ({
+    ...prev,
+    [key]: value
+  }));
+  setPage(1);
+};
