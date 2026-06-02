@@ -11,7 +11,8 @@ import {
   handleUpdateSort, 
   handleRemoveSort, 
   handleFilterChange,
-  handleSearchChange
+  handleSearchChange,
+  handleStatusToggle
 } from '../utils/sortHandlers';
 
 const Animes = () => {
@@ -20,7 +21,7 @@ const Animes = () => {
   const [error, setError] = useState('');
 
   // --- States สำหรับ Filters ---
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStatus, setFilterStatus] = useState([]);
   const [filterDay, setFilterDay] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({});
@@ -67,6 +68,11 @@ const Animes = () => {
       // Add search filters if they have values
       if (searchFilters.title) params.append('title', searchFilters.title);
       if (searchFilters.platform) params.append('platform', searchFilters.platform);
+
+      if (filterStatus.length > 0) {
+        // ถ้ามีการเลือกสถานะหลายอัน ให้ส่งเป็น comma-separated string
+        params.append('status', filterStatus.join(','));
+      }
 
       const res = await API.get(`/animes?${params.toString()}`);
       
@@ -128,18 +134,31 @@ const Animes = () => {
         <div className="flex flex-wrap gap-4">
           <div>
             <label className="text-sm font-semibold text-gray-600 mr-2">สถานะ:</label>
-            <select 
-              value={filterStatus} 
-              onChange={(e) => handleFilterChange(e, 'status', setFilterStatus, setFilterDay, setPage)}
-              className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-            >
-              <option value="">ทั้งหมด (All)</option>
-              <option value="Watching">กำลังดู (Watching)</option>
-              <option value="Completed">จบบริบูรณ์ (Completed)</option>
-              <option value="Stalled">ดองไว้ (Stalled)</option>
-              <option value="Want to Watch">อยากดู (Want to Watch)</option>
-              <option value="Dropped">เทแล้ว (Dropped)</option>
-            </select>
+            <div>
+              <label className="block text-xs font-bold text-gray-600 mb-2">เลือกสถานะรายการ (เลือกคละได้):</label>
+              <div className="flex flex-wrap gap-2">
+                {['Watching', 'Want to Watch', 'Completed', 'Stalled', 'Dropped'].map((status) => {
+                  const isActive = filterStatus.includes(status);
+                  return (
+                    <button
+                      key={status}
+                      type="button"
+                      onClick={() => handleStatusToggle(status, setFilterStatus, setPage)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 ${
+                        isActive
+                          ? 'bg-indigo-600 text-white shadow-sm border border-indigo-600 ring-2 ring-indigo-100'
+                          : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      {status} {isActive && '✓'}
+                    </button>
+                  );
+                })}
+              </div>
+              {filterStatus.length === 0 && (
+                <p className="text-xs text-gray-400 mt-1.5 italic">* กำลังแสดงผลทุกสถานะรวมกัน</p>
+              )}
+            </div>
           </div>
 
           <div>

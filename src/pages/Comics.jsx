@@ -11,7 +11,8 @@ import {
   handleUpdateSort, 
   handleRemoveSort, 
   handleFilterChange,
-  handleSearchChange
+  handleSearchChange,
+  handleStatusToggle
 } from '../utils/sortHandlers';
 
 const Comics = () => {
@@ -20,7 +21,7 @@ const Comics = () => {
   const [error, setError] = useState('');
 
   // --- States สำหรับ Filters ---
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStatus, setFilterStatus] = useState([]);
   const [filterDay, setFilterDay] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({});
@@ -71,6 +72,11 @@ const Comics = () => {
       // Add search filters to params
       if (searchFilters.title) params.append('title', searchFilters.title);
       if (searchFilters.platform) params.append('platform', searchFilters.platform);
+
+      if (filterStatus.length > 0) {
+        // ถ้ามีการเลือกสถานะหลายอัน ให้ส่งเป็น comma-separated string
+        params.set('status', filterStatus.join(','));
+      }
 
       const res = await API.get(`/comics?${params.toString()}`);
       
@@ -132,18 +138,31 @@ const Comics = () => {
         <div className="flex flex-wrap gap-4">
           <div>
             <label className="text-sm font-semibold text-gray-600 mr-2">สถานะ:</label>
-            <select 
-              value={filterStatus} 
-              onChange={(e) => handleFilterChange(e, 'status', setFilterStatus, setFilterDay, setPage)}
-              className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option value="">ทั้งหมด (All)</option>
-              <option value="Reading">กำลังอ่าน (Reading)</option>
-              <option value="Completed">จบบริบูรณ์ (Completed)</option>
-              <option value="Stalled">ดองไว้ (Stalled)</option>
-              <option value="Want to Read">อยากอ่าน (Want to Read)</option>
-              <option value="Dropped">เทแล้ว (Dropped)</option>
-            </select>
+            <div>
+              <label className="block text-xs font-bold text-gray-600 mb-2">เลือกสถานะรายการ (เลือกคละได้):</label>
+              <div className="flex flex-wrap gap-2">
+                {['Reading', 'Want to Read', 'Completed', 'Stalled', 'Dropped'].map((status) => {
+                  const isActive = filterStatus.includes(status);
+                  return (
+                    <button
+                      key={status}
+                      type="button"
+                      onClick={() => handleStatusToggle(status, setFilterStatus, setPage)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-sm border border-blue-600 ring-2 ring-blue-100'
+                          : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      {status} {isActive && '✓'}
+                    </button>
+                  );
+                })}
+              </div>
+              {filterStatus.length === 0 && (
+                <p className="text-xs text-gray-400 mt-1.5 italic">* กำลังแสดงผลทุกสถานะรวมกัน</p>
+              )}
+            </div>
           </div>
 
           <div>

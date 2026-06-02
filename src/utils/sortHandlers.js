@@ -36,3 +36,17 @@ export const handleSearchChange = (key, value, setSearchFilters, setPage) => {
   }));
   setPage(1);
 };
+
+export const handleStatusToggle = (statusName, setFilterStatus, setPage) => {
+  setFilterStatus(prev => {
+    if (prev.includes(statusName)) {
+      // ถ้าเคยกดเลือกไว้แล้ว -> ให้เอาออก
+      return prev.filter(s => s !== statusName);
+    } else {
+      // ถ้ายังไม่เคยเลือก -> ให้เพิ่มเข้าไปในกลุ่ม
+      return [...prev, statusName];
+    }
+  });
+  
+  if (setPage) setPage(1); // บังคับกลับไปหน้า 1 เสมอเมื่อฟิลเตอร์เปลี่ยน
+};
