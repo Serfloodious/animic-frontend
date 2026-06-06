@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-  // เปลี่ยนพอร์ตตามที่ Backend คุณรันอยู่
-  baseURL: 'http://localhost:5000/api/v1', 
+  baseURL: import.meta.env.VITE_API_URL, 
+  withCredentials: true
 });
 
 // Interceptor: ก่อนส่ง Request จะไปเช็กที่ LocalStorage ว่ามี Token ไหม
