@@ -26,11 +26,11 @@ export default function Profile() {
       
       <div className="space-y-4 mb-8">
         <div>
-          <label className="block text-gray-500 text-sm font-semibold">ชื่อผู้ใช้ (Username)</label>
+          <label className="block text-gray-500 text-sm font-semibold">ชื่อผู้ใช้</label>
           <p className="text-lg text-gray-900">{user?.username}</p>
         </div>
         <div>
-          <label className="block text-gray-500 text-sm font-semibold">อีเมล (Email)</label>
+          <label className="block text-gray-500 text-sm font-semibold">อีเมล</label>
           <p className="text-lg text-gray-900">{user?.email}</p>
         </div>
       </div>

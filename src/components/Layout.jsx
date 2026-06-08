@@ -17,11 +17,11 @@ export default function Layout() {
         <div className="p-4 text-2xl font-bold border-b border-gray-700 text-center text-red-500">
           Animic
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-          <Link to="/dashboard" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Dashboard</Link>
-          <Link to="/animes" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Animes</Link>
-          <Link to="/comics" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Comics</Link>
-          <Link to="/profile" className="block px-4 py-2 rounded hover:bg-gray-800 transition">Profile</Link>
+        <nav className="flex-1 p-4 text-center space-y-2">
+          <Link to="/dashboard" className="block px-4 py-2 rounded hover:bg-gray-800 transition">แดชบอร์ด</Link>
+          <Link to="/animes" className="block px-4 py-2 rounded hover:bg-gray-800 transition">อนิเมะ</Link>
+          <Link to="/comics" className="block px-4 py-2 rounded hover:bg-gray-800 transition">คอมมิก</Link>
+          <Link to="/profile" className="block px-4 py-2 rounded hover:bg-gray-800 transition">โปรไฟล์</Link>
         </nav>
       </aside>
 

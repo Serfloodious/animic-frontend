@@ -53,12 +53,12 @@ export default function EditProfile() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อผู้ใช้ (Username)</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อผู้ใช้</label>
           <input type="text" name="username" value={formData.username} onChange={(e) => handleChange(e, formData, setFormData)} 
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-gray-800" required />
         </div>
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล (Email)</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล</label>
           <input type="email" name="email" value={formData.email} onChange={(e) => handleChange(e, formData, setFormData)} 
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-gray-800" required />
         </div>

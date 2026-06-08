@@ -75,14 +75,14 @@ const EditAnime = () => {
 
       <form onSubmit={onSubmit} className="space-y-5">
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อเรื่อง (Title) *</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อเรื่อง *</label>
           <input type="text" name="title" required value={formData.title} onChange={(e) => handleChange(e, formData, setFormData)}
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">สถานะ (Status) *</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">สถานะ *</label>
             <select name="status" value={formData.status} onChange={(e) => handleStatusChange(e.target.value, formData, setFormData)}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
               style={{ borderLeft: `4px solid ${formData.color}` }}>
@@ -94,7 +94,7 @@ const EditAnime = () => {
             </select>
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">แพลตฟอร์ม (Platform)</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">แพลตฟอร์ม</label>
             <input type="text" name="platform" value={formData.platform} onChange={(e) => handleChange(e, formData, setFormData)}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
           </div>
@@ -112,13 +112,13 @@ const EditAnime = () => {
               }}
               className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer" />
             <label htmlFor="isWatched" className="ml-2 text-sm font-medium text-gray-700 cursor-pointer">
-              ดูทันตอนล่าสุดแล้ว (Green Mode)
+              ดูถึงตอนล่าสุดแล้ว (Green Mode)
             </label>
           </div>
         )}
 
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ตอนใหม่มา (Release Days)</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ตอนใหม่มา</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {daysOfWeek.map(day => (
               <button key={day} type="button" onClick={() => handleDayChange(day, formData, setFormData)}
@@ -139,7 +139,7 @@ const EditAnime = () => {
         {formData.status === 'Stalled' && (
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              วันที่คาดว่าจะกลับมาดู (Resume Date)
+              วันที่คาดว่าจะกลับมาดู
             </label>
             <input 
               type="date" 
@@ -172,7 +172,7 @@ const EditAnime = () => {
             </div>
           </div>
           <div>
-            <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (Rating) (0-10)</label>
+            <label className="block text-gray-700 text-xs font-bold mb-1">คะแนน (0-10)</label>
             <div className="flex items-stretch border rounded focus-within:ring-2 focus-within:ring-purple-500 overflow-hidden bg-white">
               <input type="number" name="rating" value={formData.rating} onChange={(e) => handleChange(e, formData, setFormData)} min="0" max="10" 
                 className="w-full px-3 py-2 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
@@ -193,12 +193,12 @@ const EditAnime = () => {
         </div>
 
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2">บันทึกเพิ่มเติม (Note)</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">บันทึกเพิ่มเติม</label>
           <textarea name="note" value={formData.note} onChange={(e) => handleChange(e, formData, setFormData)} rows="2" className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
         </div>
 
         <div className="flex gap-4 pt-4 border-t">
-          <button type="submit" className="flex-1 bg-purple-500 text-white font-bold py-2 px-4 rounded hover:bg-purple-600">บันทึกการแก้ไข</button>
+          <button type="submit" className="flex-1 bg-purple-500 text-white font-bold py-2 px-4 rounded hover:bg-purple-600">บันทึก</button>
           <button type="button" onClick={() => navigate(-1)} className="flex-1 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400">ยกเลิก</button>
         </div>
       </form>

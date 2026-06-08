@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
+import { dayTranslations, statusTranslations } from '../utils/constants';
 import { formatDate, getDayColor } from '../utils/formatters';
 import { handleDeleteData } from '../utils/apiHandlers';
 
@@ -68,7 +69,9 @@ const ComicDetail = () => {
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase">สถานะ</label>
                 <div className="text-lg font-semibold" style={{ color: comic.color }}>
-                  {comic.status} {comic.isRead && ' (อ่านถึงตอนล่าสุดแล้ว)'}
+                  {comic.status !== 'Reading' && statusTranslations[comic.status]} 
+                  {comic.status === 'Reading' && comic.isRead && ' อ่านถึงตอนล่าสุดแล้ว'}
+                  {comic.status === 'Reading' && !comic.isRead && ' ยังอ่านไม่ถึงตอนล่าสุด'}
                 </div>
               </div>
 
@@ -97,7 +100,7 @@ const ComicDetail = () => {
                   {comic.releaseDays?.length > 0 ? (
                     comic.releaseDays.map((day, i) => (
                       <span key={i} className={`px-3 py-1 rounded-full text-sm font-medium shadow-sm ${getDayColor(day)}`}>
-                        {day}
+                        {dayTranslations[day] || day}
                       </span>
                     ))
                   ) : '-'}

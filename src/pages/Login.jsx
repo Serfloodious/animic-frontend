@@ -48,13 +48,13 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">เข้าสู่ระบบ Animic</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">เข้าสู่ระบบ</h2>
         
         {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm text-center">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล (Email)</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล</label>
             <input type="email" name="email" value={formData.email} onChange={(e) => handleChange(e, formData, setFormData)} 
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-red-500" 
               placeholder="example@mail.com" />

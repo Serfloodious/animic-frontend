@@ -4,7 +4,12 @@ import Spinner from '../components/Spinner';
 import StatusBadge from '../components/StatusBadge';
 import API from '../api/axios'; 
 
-import { dayOptions } from '../utils/constants';
+import { 
+  dayOptions, 
+  dayTranslations,
+  comicStatusOptions,
+  statusTranslations
+} from '../utils/constants';
 import { formatDate, getDayColor } from '../utils/formatters';
 import { 
   handleAddSort, 
@@ -51,15 +56,15 @@ const Comics = () => {
   });
 
   const sortOptions = [
-    { value: 'dayOrder', label: 'วันที่ตอนใหม่มา (Release Days)' },
-    { value: 'title', label: 'ชื่อเรื่อง (Title)' },
-    { value: 'status', label: 'สถานะ (Status)' },
-    { value: 'platform', label: 'แพลตฟอร์ม (Platform)' },
+    { value: 'dayOrder', label: 'วันที่ตอนใหม่มา' },
+    { value: 'title', label: 'ชื่อเรื่อง' },
+    { value: 'status', label: 'สถานะ' },
+    { value: 'platform', label: 'แพลตฟอร์ม' },
     { value: 'volume', label: 'เล่มที่/ซีซันที่ (Volume/Season)' },
     { value: 'chapter', label: 'ตอนที่ (Chapter)' },
-    { value: 'rating', label: 'คะแนน (Rating)' },
-    { value: 'resumeDate', label: 'วันที่คาดว่าจะกลับมาอ่าน (Resume Date)' },
-    { value: 'createdAt', label: 'วันที่เพิ่ม (Created Date)' }
+    { value: 'rating', label: 'คะแนน' },
+    { value: 'resumeDate', label: 'วันที่คาดว่าจะกลับมาอ่าน' },
+    { value: 'createdAt', label: 'วันที่เพิ่ม' }
   ];
 
   useEffect(() => {
@@ -118,7 +123,7 @@ const Comics = () => {
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">คลังคอมมิก (Comics)</h1>
+        <h1 className="text-2xl font-bold text-gray-800">คลังคอมมิก</h1>
         <Link 
           to="/comics/add" 
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm shrink-0"
@@ -129,11 +134,11 @@ const Comics = () => {
 
       {/* --- ส่วนเครื่องมือค้นหา (Search Tools) --- */}
       <div className="bg-white p-5 rounded-lg shadow-sm mb-4 border border-gray-100">
-        <h3 className="text-sm font-bold text-gray-700 mb-3 border-b pb-2">ค้นหาข้อมูล (Search)</h3>
+        <h3 className="text-sm font-bold text-gray-700 mb-3 border-b pb-2">ค้นหาข้อมูล</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* ช่องค้นหาด้วยชื่อเรื่อง */}
           <div>
-            <label className="block text-xs font-bold text-gray-600 mb-1">ชื่อเรื่อง (Title):</label>
+            <label className="block text-xs font-bold text-gray-600 mb-1">ชื่อเรื่อง:</label>
             <input
               type="text"
               placeholder="พิมพ์คำที่ต้องการค้นหา..."
@@ -145,7 +150,7 @@ const Comics = () => {
 
           {/* ช่องค้นหาด้วยแพลตฟอร์ม */}
           <div>
-            <label className="block text-xs font-bold text-gray-600 mb-1">แพลตฟอร์ม (Platform):</label>
+            <label className="block text-xs font-bold text-gray-600 mb-1">แพลตฟอร์ม:</label>
             <input
               type="text"
               placeholder="เช่น Netflix, Bilibili, Webtoon..."
@@ -159,14 +164,14 @@ const Comics = () => {
 
       {/* --- ส่วนเครื่องมือกรอง (Filters) --- */}
       <div className="bg-white p-5 rounded-lg shadow-sm mb-6 border border-gray-100">
-        <h3 className="text-sm font-bold text-gray-700 mb-3 border-b pb-2">ตัวกรอง (Filters)</h3>
+        <h3 className="text-sm font-bold text-gray-700 mb-3 border-b pb-2">ตัวกรอง</h3>
         <div className="flex flex-wrap gap-4">
           <div>
             <label className="text-sm font-semibold text-gray-600 mr-2">สถานะ:</label>
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-2">เลือกสถานะรายการ (เลือกคละได้):</label>
               <div className="flex flex-wrap gap-2">
-                {['Reading', 'Want to Read', 'Completed', 'Stalled', 'Dropped'].map((status) => {
+                {comicStatusOptions.map((status) => {
                   const isActive = filterStatus.includes(status);
                   return (
                     <button
@@ -179,7 +184,7 @@ const Comics = () => {
                           : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
                       }`}
                     >
-                      {status} {isActive && '✓'}
+                      {statusTranslations[status] || status} {isActive && '✓'}
                     </button>
                   );
                 })}
@@ -197,7 +202,7 @@ const Comics = () => {
               onChange={(e) => handleFilterChange(e, 'day', setFilterStatus, setFilterDay, setPage)}
               className="border rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             >
-              <option value="">ทุกวัน (All)</option>
+              <option value="">ทุกวัน</option>
               {dayOptions.map(day => (
                 <option key={day.value} value={day.value}>{day.label}</option>
               ))}
@@ -207,7 +212,7 @@ const Comics = () => {
 
         {/* --- ส่วนการจัดเรียงหลายชั้น (Multi-Sort) --- */}
         <h3 className="text-sm font-bold text-gray-700 mt-6 mb-3 border-b pb-2">
-          การจัดเรียง (Sorting) (เรียงลำดับความสำคัญจากบนลงล่าง)
+          การจัดเรียง (เรียงลำดับความสำคัญจากบนลงล่าง)
         </h3>
         <div className="flex flex-col gap-3">
           {sortRules.map((rule, index) => (
@@ -291,7 +296,7 @@ const Comics = () => {
                               key={i} 
                               className={`px-2 py-0.5 rounded-full text-[10px] font-medium shadow-sm ${getDayColor(day)}`}
                             >
-                              {day}
+                              {dayTranslations[day] || day}
                             </span>
                           ))}
                         </div>

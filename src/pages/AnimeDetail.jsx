@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import API from '../api/axios';
 
+import { dayTranslations, statusTranslations } from '../utils/constants';
 import { formatDate, getDayColor } from '../utils/formatters';
 import { handleDeleteData } from '../utils/apiHandlers';
 
@@ -68,7 +69,9 @@ const animeDetail = () => {
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase">สถานะ</label>
                 <div className="text-lg font-semibold" style={{ color: anime.color }}>
-                  {anime.status} {anime.isWatched && ' (ดูถึงตอนล่าสุดแล้ว)'}
+                  {anime.status !== 'Watching' && statusTranslations[anime.status]} 
+                  {anime.status === 'Watching' && anime.isRead && ' ดูถึงตอนล่าสุดแล้ว'}
+                  {anime.status === 'Watching' && !anime.isRead && ' ยังดูไม่ถึงตอนล่าสุด'}
                 </div>
               </div>
 
@@ -93,7 +96,7 @@ const animeDetail = () => {
                   {anime.releaseDays?.length > 0 ? (
                     anime.releaseDays.map((day, i) => (
                       <span key={i} className={`px-3 py-1 rounded-full text-sm font-medium shadow-sm ${getDayColor(day)}`}>
-                        {day}
+                        {dayTranslations[day] || day}
                       </span>
                     ))
                   ) : '-'}
